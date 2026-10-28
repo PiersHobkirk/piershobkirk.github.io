@@ -39,11 +39,11 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
 .ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
 img { max-width: 100%; display: block; }
 
-.hero { padding-block: clamp(3rem, 9vw, 5.5rem) 1.5rem; }
+.hero { padding-block: clamp(3rem, 9vw, 5.5rem) .25rem; }
 .hero h1 { font-size: clamp(2.3rem, 9vw, 3.8rem); margin-bottom: .8rem; }
-.lede { font-size: 1.2rem; max-width: 32rem; margin-inline: auto; }
+.lede { font-size: 1.2rem; max-width: 32rem; margin: 0 auto; }
 
-.intro { padding-block: 2rem; }
+.intro { padding-block: 1rem 2rem; }
 .intro .wrap > div { margin-top: 1.5rem; }
 h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
@@ -107,7 +107,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     </div>
   </section>
 
-  <!-- Each .rule is drawn by the script. The figure on a rule belongs to the <details> directly after it. -->
+  <!-- Each .rule is drawn by the script. The figure on a rule belongs to the <details> directly BEFORE it (the first rule has none). -->
   <section class="faq">
     <div class="wrap">
       <h2>Frequently asked questions</h2>
@@ -160,6 +160,11 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       <button type="button" data-colour="light">Light</button>
       <button type="button" data-colour="dark">Dark</button>
     </div>
+    <div class="opt-row"><span>Fall</span>
+      <button type="button" data-fall="a">Half roll</button>
+      <button type="button" data-fall="b">Full roll</button>
+      <button type="button" data-fall="c">Slip &amp; spin</button>
+    </div>
     <div class="opt-row"><span>Loops</span>
       <input type="range" id="loops" min="2" max="14" step="1" aria-label="Number of loops"><output id="loops-out"></output>
     </div>
@@ -174,19 +179,19 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   'use strict';
 
   /* ==========================================================
-     SETTINGS (the sliders change loops and depth live for testing)
+     SETTINGS (the options panel changes these live for testing)
      ========================================================== */
   var cfg = {
     colour: 'dark',   // 'dark' or 'light'
-    loops: 6,         // number of regular loop spans along the bar (the span the figure stands on is split in two)
-    depth: 22         // how far the deepest loop hangs below the bar, in px
+    loops: 7,         // number of regular loop spans along the bar (the span the figure stands on is split in two)
+    depth: 28,        // how far the deepest loop hangs below the bar, in px
+    fall: 'a'         // 'a' half roll, 'b' full roll, 'c' slip and spin
   };
   var LINE = 4;           // thickness of the bar AND the loops, in px
   var SPLIT_DEPTH = 0.6;  // the two short loops either side of the figure's node are this much as deep
-
-  /* Layout (px) */
-  var TOP = 48;           // room above the bar for the standing figure
-  var BELOW_MIN = 54;     // room below the bar for the hanging figure
+  var SCALE = 1.15;       // figure size multiplier
+  var SHAKE = { amp: 1.6, hz: 7, wavelength: 110, reach: 180, settle: 350 };  // line shake: px, Hz, px, px, ms
+  var TOP_PLAIN = 14;     // room above the bar on a divider with no figure
 
   var NS = 'http://www.w3.org/2000/svg';
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -208,12 +213,13 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     }
     return (lo + hi) / 2;
   }
-  function loopPath(x0, x1, y0, d) {
+  // dy0 / dy1 = how far each end has been pushed down by the line shaking
+  function loopPath(x0, x1, y0, d, dy0, dy1) {
     var h = (x1 - x0) / 2, xm = (x0 + x1) / 2, a = catenaryA(h, d), N = 28, pts = [];
     for (var i = 0; i <= N; i++) {
-      var x = x0 + (x1 - x0) * i / N;
-      var y = y0 + d - a * (Math.cosh((x - xm) / a) - 1);
-      pts.push((i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1));
+      var u = i / N, x = x0 + (x1 - x0) * u;
+      var y = y0 + dy0 + (dy1 - dy0) * u + d - a * (Math.cosh((x - xm) / a) - 1);
+      pts.push((i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(2));
     }
     return pts.join(' ');
   }
@@ -221,18 +227,20 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   function depthFactor(i, n) { return 0.55 + 0.45 * Math.sin(Math.PI * (i + 0.5) / n); }
 
   /* ---------- The stick figure ----------
-     Limb lengths in px (total standing height is about 40px):
-     torso 10, neck 2.6, head radius 3.4, upper arm 8, forearm 8, thigh 10, shin 10.5.
-     Poses are solved from joint angles, so limb lengths never change between frames.
-     Coordinates are relative to the figure's node on the bar (x right, y down). */
+     Base limb lengths (px, before SCALE): torso 10, neck 2.6, head radius 3.4,
+     upper arm 8, forearm 8, thigh 10, shin 10.5. Poses are solved from joint
+     angles so limb lengths never change between frames. All numbers below are in
+     base units and are multiplied by SCALE. Coordinates are relative to the
+     figure's node on the bar (x right, y down). */
   var TORSO = 10, NECK = 2.6, HEAD_R = 3.4, UARM = 8, FARM = 8, THIGH = 10, SHIN = 10.5;
-  var FOOT_Y = -LINE / 2;   // feet rest on top of the bar
+  var FOOT_Y = -(LINE / 2) / SCALE;   // feet rest on top of the bar
 
   function rad(d) { return d * Math.PI / 180; }
   function down(a, len) { return [Math.sin(rad(a)) * len, Math.cos(rad(a)) * len]; }   // 0 = straight down, +90 = right
   function up(a, len)   { return [Math.sin(rad(a)) * len, -Math.cos(rad(a)) * len]; }  // 0 = straight up,   +90 = right
   function add(p, q) { return [p[0] + q[0], p[1] + q[1]]; }
   function sub(p, q) { return [p[0] - q[0], p[1] - q[1]]; }
+  function sc(p) { return [p[0] * SCALE, p[1] * SCALE]; }
 
   // Two-bone limb from base to target; bend = +1 / -1 picks which side the elbow or knee points
   function ik(base, target, l1, l2, bend) {
@@ -243,63 +251,97 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     return [[base[0] + ux * a - bend * uy * h, base[1] + uy * a + bend * ux * h],
             [base[0] + ux * d, base[1] + uy * d]];
   }
-  function limb(base, spec, l1, l2) {
-    if (spec.ik) return ik(base, spec.ik, l1, l2, spec.bend || 1);
-    var m = add(base, down(spec.fk[0], l1));
-    return [m, add(m, down(spec.fk[1], l2))];
+  function limb(base, spec, l1, l2, off) {
+    if (spec.ik) return ik(base, sc(spec.ik), l1, l2, spec.bend || 1);
+    var m = add(base, down(spec.fk[0] + off, l1));
+    return [m, add(m, down(spec.fk[1] + off, l2))];
   }
-  /* def.a      torso lean in degrees (0 = upright, negative = leaning left)
+  /* def.a      torso lean in degrees (0 = upright, negative = leaning left / rolling anticlockwise)
      def.hip    hip position, or def.pin = where arm A's hand grips (the body then hangs from it)
+     def.rel    true = fk limb angles are measured relative to the body, so they turn with it
      def.head   extra head tilt in degrees; def.headOff = [dx, dy] nudge of the head centre
      arms/legs  { fk: [upper angle, lower angle] } or { ik: [targetX, targetY], bend: 1 | -1 } */
   function solve(def) {
-    var hip, sh;
+    var S = SCALE, T = TORSO * S, hip, sh, off = def.rel ? -def.a : 0;
     if (def.pin) {
       var g = def.armA.fk;
-      sh = sub(def.pin, add(down(g[0], UARM), down(g[1], FARM)));
-      hip = sub(sh, up(def.a, TORSO));
+      sh = sub(sc(def.pin), add(down(g[0] + off, UARM * S), down(g[1] + off, FARM * S)));
+      hip = sub(sh, up(def.a, T));
     } else {
-      hip = def.hip;
-      sh = add(hip, up(def.a, TORSO));
+      hip = sc(def.hip);
+      sh = add(hip, up(def.a, T));
     }
-    var nk = add(hip, up(def.a, TORSO + NECK));
-    var hd = add(nk, up(def.a + (def.head || 0), HEAD_R));
-    if (def.headOff) hd = add(hd, def.headOff);
-    var A = limb(sh, def.armA, UARM, FARM), B = limb(sh, def.armB, UARM, FARM);
-    var LA = limb(hip, def.legA, THIGH, SHIN), LB = limb(hip, def.legB, THIGH, SHIN);
+    var nk = add(hip, up(def.a, T + NECK * S));
+    var hd = add(nk, up(def.a + (def.head || 0), HEAD_R * S));
+    if (def.headOff) hd = add(hd, sc(def.headOff));
+    var A = limb(sh, def.armA, UARM * S, FARM * S, off), B = limb(sh, def.armB, UARM * S, FARM * S, off);
+    var LA = limb(hip, def.legA, THIGH * S, SHIN * S, off), LB = limb(hip, def.legB, THIGH * S, SHIN * S, off);
     return { hip: hip, sh: sh, nk: nk, hd: hd, eA: A[0], hA: A[1], eB: B[0], hB: B[1], kA: LA[0], fA: LA[1], kB: LB[0], fB: LB[1] };
+  }
+  // limb sets measured relative to the body, for the rolls
+  var TUCK  = { armA: { fk: [-55, -120] },  armB: { fk: [-35, -100] }, legA: { fk: [-100, -10] }, legB: { fk: [-115, -20] } };
+  var OPEN  = { armA: { fk: [-120, -165] }, armB: { fk: [120, 160] },  legA: { fk: [-25, -10] },  legB: { fk: [25, 10] } };
+  var LOOSE = { armA: { fk: [-150, -190] }, armB: { fk: [140, 175] },  legA: { fk: [-40, -15] },  legB: { fk: [35, 10] } };
+  function body(hip, a, limbs) {
+    return solve({ hip: hip, a: a, rel: true, armA: limbs.armA, armB: limbs.armB, legA: limbs.legA, legB: limbs.legB });
   }
 
   // Facing left. Arm A is the front (left) arm, leg A the front (left) leg. Both knees point left.
   var POSES = {
     stand:   solve({ hip: [0, -19.5], a: -4,  armA: { fk: [-115, -150] }, armB: { fk: [105, 90] },
                      legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } }),
-    // the fall, one static picture per step
     lean:    solve({ hip: [-3, -19.8], a: -16, armA: { fk: [-135, -170] }, armB: { fk: [135, 165] },
                      legA: { ik: [-6, FOOT_Y], bend: 1 }, legB: { ik: [6, FOOT_Y], bend: 1 } }),
     tip:     solve({ hip: [-9, -15], a: -48,   armA: { fk: [-75, -100] }, armB: { fk: [160, 185] },
                      legA: { ik: [-13, 3], bend: 1 }, legB: { ik: [2, FOOT_Y], bend: 1 } }),
-    fall:    solve({ hip: [-9, 15], a: -115,   armA: { fk: [170, 190] }, armB: { fk: [150, 205] },
-                     legA: { fk: [75, 40] }, legB: { fk: [100, 70] } }),
+    // roll A: about half a turn, anticlockwise
+    rA1:     body([-12, -6], -110, TUCK),
+    rA2:     body([-15, 12], -195, OPEN),
+    // roll B: a full turn, anticlockwise
+    rB1:     body([-7, -14], -75, TUCK),
+    rB2:     body([-12, -3], -165, TUCK),
+    rB3:     body([-16, 9], -255, TUCK),
+    rB4:     body([-16, 20], -330, OPEN),
+    // roll C: a loose slip and spin
+    rC1:     body([-9, -8], -80, LOOSE),
+    rC2:     body([-14, 10], -160, LOOSE),
+    // caught by the leash-free grip: one hand on the node
     caughtL: solve({ pin: [0, 0], a: 30, head: -40, armA: { fk: [120, 200] }, armB: { fk: [-130, -155] },
                      legA: { fk: [18, 4] }, legB: { fk: [32, 12] } }),
     caughtR: solve({ pin: [0, 0], a: -14, head: -40, armA: { fk: [160, 235] }, armB: { fk: [25, 10] },
                      legA: { fk: [-18, -5] }, legB: { fk: [-8, 6] } }),
     hang:    solve({ pin: [0, 0], a: 0, head: -40, armA: { fk: [140, 220] }, armB: { fk: [-12, -14] },
-                     legA: { fk: [-7, 3] }, legB: { fk: [7, -2] } }),
-    // climbing back up
+                     legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } }),
+    // climbing back up: swing a leg, hook it over the line, pull up, get on, stand
     c1:      solve({ hip: [0, 24], a: 0,       armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
-                     legA: { fk: [-4, 3] }, legB: { fk: [5, -2] } }),
-    c2:      solve({ hip: [0, 9], a: 0,        armA: { ik: [-6, 0], bend: -1 }, armB: { ik: [6, 0], bend: 1 },
-                     legA: { fk: [-12, 8] }, legB: { fk: [14, 2] } }),
-    c3:      solve({ hip: [0, -9], a: -6,      armA: { fk: [-100, -125] }, armB: { fk: [100, 115] },
-                     legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } })
+                     legA: { ik: [-12, 9], bend: 1 }, legB: { fk: [6, -2] } }),
+    c2:      solve({ hip: [2, 14], a: -6,      armA: { ik: [-3, 0], bend: -1 }, armB: { ik: [3, 0], bend: 1 },
+                     legA: { ik: [-11, -5], bend: 1 }, legB: { fk: [10, 0] } }),
+    c3:      solve({ hip: [-3, 6], a: -35,     armA: { ik: [-12, 0], bend: 1 }, armB: { ik: [-6, 0], bend: 1 },
+                     legA: { ik: [-10, -3.5], bend: 1 }, legB: { fk: [22, 8] } }),
+    c4:      solve({ hip: [-4, -10], a: -25,   armA: { fk: [-100, -125] }, armB: { fk: [100, 115] },
+                     legA: { ik: [-7, FOOT_Y], bend: 1 }, legB: { ik: [4, FOOT_Y], bend: 1 } })
   };
 
   // Static frames, no smoothing between them. ms = how long each picture is held.
-  var FALL  = [{ p: 'lean', ms: 150 }, { p: 'tip', ms: 150 }, { p: 'fall', ms: 200 },
-               { p: 'caughtL', ms: 250 }, { p: 'caughtR', ms: 250 }, { p: 'hang', ms: 0 }];
-  var CLIMB = [{ p: 'c1', ms: 180 }, { p: 'c2', ms: 180 }, { p: 'c3', ms: 180 }, { p: 'stand', ms: 0 }];
+  var CATCH = [{ p: 'caughtL', ms: 250 }, { p: 'caughtR', ms: 250 }, { p: 'hang', ms: 0 }];
+  var FALLS = {
+    a: [{ p: 'lean', ms: 140 }, { p: 'tip', ms: 140 }, { p: 'rA1', ms: 150 }, { p: 'rA2', ms: 170 }].concat(CATCH),
+    b: [{ p: 'lean', ms: 120 }, { p: 'rB1', ms: 120 }, { p: 'rB2', ms: 120 }, { p: 'rB3', ms: 120 }, { p: 'rB4', ms: 140 }].concat(CATCH),
+    c: [{ p: 'tip', ms: 150 }, { p: 'rC1', ms: 150 }, { p: 'rC2', ms: 170 }].concat(CATCH)
+  };
+  var CLIMB = [{ p: 'c1', ms: 180 }, { p: 'c2', ms: 200 }, { p: 'c3', ms: 220 }, { p: 'c4', ms: 220 }, { p: 'stand', ms: 0 }];
+
+  // Room needed above and below the bar, measured from the poses themselves
+  var EXT_UP = 0, EXT_DOWN = 0;
+  Object.keys(POSES).forEach(function (k) {
+    var P = POSES[k];
+    ['hip', 'sh', 'nk', 'eA', 'hA', 'eB', 'hB', 'kA', 'fA', 'kB', 'fB'].forEach(function (j) {
+      EXT_UP = Math.max(EXT_UP, -P[j][1]); EXT_DOWN = Math.max(EXT_DOWN, P[j][1]);
+    });
+    EXT_UP = Math.max(EXT_UP, -P.hd[1] + HEAD_R * SCALE); EXT_DOWN = Math.max(EXT_DOWN, P.hd[1] + HEAD_R * SCALE);
+  });
+  var TOP_FIG = Math.ceil(EXT_UP + 3), BELOW_FIG = Math.ceil(EXT_DOWN + 4);
 
   function pt(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
   function draw(fig, P) {
@@ -311,9 +353,54 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     f.legB.setAttribute('d', 'M' + pt(P.hip) + ' L' + pt(P.kB) + ' L' + pt(P.fB));
     f.head.setAttribute('cx', P.hd[0].toFixed(1));
     f.head.setAttribute('cy', P.hd[1].toFixed(1));
+    f.head.setAttribute('r', (HEAD_R * SCALE).toFixed(2));
   }
+
+  /* ---------- The bar, loops and figure position, with optional shake ---------- */
+  function renderLine(geo, disp) {
+    var D = disp || function () { return 0; }, xs = geo.xs, d = [];
+    for (var i = 0; i < xs.length - 1; i++) {
+      for (var s = 0; s < 6; s++) {
+        var x = xs[i] + (xs[i + 1] - xs[i]) * s / 6;
+        d.push((d.length ? 'L' : 'M') + x.toFixed(1) + ' ' + (geo.barY + D(x)).toFixed(2));
+      }
+    }
+    var xe = xs[xs.length - 1];
+    d.push('L' + xe.toFixed(1) + ' ' + (geo.barY + D(xe)).toFixed(2));
+    geo.bar.setAttribute('d', d.join(' '));
+    geo.spans.forEach(function (sp, i) {
+      geo.loops[i].setAttribute('d', loopPath(sp[0], sp[1], geo.barY, sp[2], D(sp[0]), D(sp[1])));
+    });
+    if (geo.fig) geo.fig.setAttribute('transform', 'translate(' + geo.figX.toFixed(1) + ' ' + (geo.barY + D(geo.figX)).toFixed(2) + ')');
+  }
+  // Ripples travel out along the line from the figure while it moves, then die away
+  function startShake(fig) {
+    if (reduce) return;
+    fig.shake = { t0: performance.now(), dur: fig.total };
+    if (fig.raf) return;
+    var geo = fig.geo;
+    function tick(now) {
+      var sh = fig.shake, t = now - sh.t0;
+      var amp = SHAKE.amp * (t < sh.dur ? 1 : Math.exp(-(t - sh.dur) / SHAKE.settle));
+      if (t >= sh.dur && amp < 0.03) { fig.raf = 0; renderLine(geo, null); return; }
+      var w = 2 * Math.PI * SHAKE.hz * t / 1000, k = 2 * Math.PI / SHAKE.wavelength;
+      renderLine(geo, function (x) {
+        var dd = Math.abs(x - geo.figX);
+        return amp * Math.exp(-dd / SHAKE.reach) * Math.sin(w - k * dd);
+      });
+      fig.raf = requestAnimationFrame(tick);
+    }
+    fig.raf = requestAnimationFrame(tick);
+  }
+  function stopAnim(fig) {
+    if (fig.timer) { clearTimeout(fig.timer); fig.timer = 0; }
+    if (fig.raf) { cancelAnimationFrame(fig.raf); fig.raf = 0; }
+  }
+
   function play(fig, frames) {
     var i = 0;
+    fig.total = frames.reduce(function (t, f) { return t + f.ms; }, 0);
+    startShake(fig);
     (function next() {
       var fr = frames[i++];
       draw(fig, POSES[fr.p]);
@@ -323,20 +410,22 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   function setHung(fig, hung, animate) {
     if (fig.target === hung) return;
     fig.target = hung;
-    if (fig.timer) { clearTimeout(fig.timer); fig.timer = 0; }
-    if (!animate || reduce) { draw(fig, POSES[hung ? 'hang' : 'stand']); return; }
-    play(fig, hung ? FALL : CLIMB);
+    stopAnim(fig);
+    if (!animate || reduce) { renderLine(fig.geo, null); draw(fig, POSES[hung ? 'hang' : 'stand']); return; }
+    play(fig, hung ? FALLS[cfg.fall] : CLIMB);
   }
 
   /* ---------- Build one divider ---------- */
   function build(rule) {
     var W = Math.round(rule.getBoundingClientRect().width);
     if (!W) return;
-    if (rule._fig && rule._fig.timer) clearTimeout(rule._fig.timer);
-    var details = rule.nextElementSibling;
+    if (rule._fig) stopAnim(rule._fig);
+    // the figure on this divider belongs to the section directly ABOVE it
+    var details = rule.previousElementSibling;
     if (details && details.tagName !== 'DETAILS') details = null;
 
-    var H = TOP + Math.max(cfg.depth + 10, BELOW_MIN), barY = TOP;
+    var top = details ? TOP_FIG : TOP_PLAIN;
+    var H = top + (details ? Math.max(cfg.depth + 10, BELOW_FIG) : cfg.depth + 10), barY = top;
     rule.style.height = H + 'px';
     rule.textContent = '';
     rule.classList.toggle('has-fig', !!details);
@@ -350,23 +439,24 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     for (var j = 0; j < n - 1; j++) spans.push([nodes[j], nodes[j + 1], cfg.depth * depthFactor(j, n)]);
     var dLast = cfg.depth * depthFactor(n - 1, n) * SPLIT_DEPTH;
     spans.push([nodes[n - 1], figX, dLast], [figX, nodes[n], dLast]);
-    spans.forEach(function (s) {
-      el('path', { class: 'loop', 'stroke-width': LINE, d: loopPath(s[0], s[1], barY, s[2]) }, svg);
-    });
-    el('path', { class: 'bar', 'stroke-width': LINE, d: 'M' + x0 + ' ' + barY + ' L' + x1 + ' ' + barY }, svg);
 
-    if (!details) { rule._fig = null; return; }
+    var geo = { W: W, barY: barY, figX: figX, spans: spans, loops: [], fig: null,
+                xs: nodes.slice(0, n).concat([figX, nodes[n]]) };
+    spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, svg)); });
+    geo.bar = el('path', { class: 'bar', 'stroke-width': LINE }, svg);
+
+    if (!details) { renderLine(geo, null); rule._fig = null; return; }
 
     // the figure, standing on (or hanging from) the extra node
-    var g = el('g', { transform: 'translate(' + figX.toFixed(1) + ' ' + barY + ')' }, svg);
+    var g = geo.fig = el('g', {}, svg);
     var parts = {};
     parts.torso = el('path', { class: 'fl' }, g);
     parts.armA = el('path', { class: 'fl' }, g);
     parts.armB = el('path', { class: 'fl' }, g);
     parts.legA = el('path', { class: 'fl' }, g);
     parts.legB = el('path', { class: 'fl' }, g);
-    parts.head = el('circle', { class: 'fh', r: HEAD_R }, g);
-    var fig = { parts: parts, timer: 0, target: null };
+    parts.head = el('circle', { class: 'fh' }, g);
+    var fig = { parts: parts, geo: geo, timer: 0, raf: 0, target: null, total: 0 };
     rule._fig = fig;
     setHung(fig, !!details.open, false);
   }
@@ -375,7 +465,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   function renderAll() { rules.forEach(build); }
 
   rules.forEach(function (rule) {
-    var d = rule.nextElementSibling;
+    var d = rule.previousElementSibling;
     if (!d || d.tagName !== 'DETAILS') return;
     d.addEventListener('toggle', function () { if (rule._fig) setHung(rule._fig, d.open, true); });
     rule.addEventListener('click', function () { d.open = !d.open; });
@@ -400,6 +490,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   if (q.get('colour') === 'light' || q.get('colour') === 'dark') cfg.colour = q.get('colour');
   cfg.loops = clamp(q.get('loops'), 2, 14, cfg.loops);
   cfg.depth = clamp(q.get('depth'), 8, 60, cfg.depth);
+  if (FALLS[q.get('fall')]) cfg.fall = q.get('fall');
 
   function sync() {
     root.setAttribute('data-colour', cfg.colour);
@@ -407,10 +498,14 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     document.getElementById('loops-out').textContent = cfg.loops;
     document.getElementById('depth-out').textContent = cfg.depth + 'px';
     document.querySelectorAll('button[data-colour]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.colour === cfg.colour); });
+    document.querySelectorAll('button[data-fall]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.fall === cfg.fall); });
     try { history.replaceState(null, '', '#' + new URLSearchParams(cfg).toString()); } catch (e) {}
   }
   document.querySelectorAll('button[data-colour]').forEach(function (b) {
     b.addEventListener('click', function () { cfg.colour = b.dataset.colour; sync(); });
+  });
+  document.querySelectorAll('button[data-fall]').forEach(function (b) {
+    b.addEventListener('click', function () { cfg.fall = b.dataset.fall; sync(); });
   });
   loopsIn.addEventListener('input', function () { cfg.loops = +loopsIn.value; sync(); renderAll(); });
   depthIn.addEventListener('input', function () { cfg.depth = +depthIn.value; sync(); renderAll(); });
