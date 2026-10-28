@@ -524,8 +524,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
   // each figure randomly gets a solid or an outline head (chosen once per page load)
-  // and one divider in three (never the second, which carries the bubble) is mirrored, figure on the left
-  rules.forEach(function (r, i) { r._solid = Math.random() < 0.5; r._mirror = i !== BUBBLE_ON && Math.random() < 1 / 3; });
+  // the 3rd divider, and the 5th and every one after it, are mirrored (figure on the left)
+  function isMirrored(n) { return n === 3 || n >= 5; }   // n counts dividers from 1
+  rules.forEach(function (r, i) { r._solid = Math.random() < 0.5; r._mirror = isMirrored(i + 1); });
   function renderAll() { rules.forEach(build); }
 
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
