@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-colour="dark" data-divider="wave">
+<html lang="en" data-colour="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,14 +26,14 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; padding-bottom: 10rem; background: var(--bg); color: var(--ink);
+  margin: 0; padding-bottom: 12rem; background: var(--bg); color: var(--ink);
   font-family: "Averia Serif Libre", Georgia, serif; font-size: 1.1rem; line-height: 1.7; text-align: center;
 }
 .wrap { width: min(100% - 2.5rem, 40rem); margin-inline: auto; }
 h1, h2 { font-weight: 700; margin: 0; line-height: 1.15; }
 p { margin: 0 0 1em; }
 a { color: var(--accent); }
-a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 /* Image placeholder: replace <div class="ph"> with <img src="images/your-photo.jpg" alt="..."> */
 .ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
@@ -48,38 +48,57 @@ img { max-width: 100%; display: block; }
 h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
 .faq { padding-block: 2rem; }
-.faq h2 { margin-bottom: 1.5rem; }
-summary { cursor: pointer; padding: 1.1rem 1rem; font-size: 1.2rem; list-style: none; }
-summary::-webkit-details-marker { display: none; }
-summary::after { content: "+"; display: inline-block; margin-left: .6rem; font-size: 1.4rem; line-height: 1; transition: transform .2s; }
-details[open] summary::after { transform: rotate(45deg); }
-details > div { padding: 0 1rem 1rem; }
+.faq h2 { margin-bottom: .25rem; }
+.faq summary { cursor: pointer; padding: .9rem 1rem; font-size: 1.2rem; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; display: inline-block; margin-left: .6rem; font-size: 1.4rem; line-height: 1; transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details > div { padding: 0 1rem 1rem; }
 
 .links { padding-block: 2rem 3rem; }
 .links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
 .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
 
 /* ============================================================
-   DIVIDERS: drawn by the script at the bottom (see DIVIDERS).
+   DIVIDERS: a flat bar with catenary backup loops hanging below,
+   and a stick figure on the right. Everything is drawn by the
+   script at the bottom, so it fits any screen width.
    ============================================================ */
-.rule { position: relative; height: 28px; margin-block: .25rem; }
-.rule svg { display: block; width: 100%; height: 28px; overflow: visible; }
-.rule path { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-/* "Slack" divider anchors */
-[data-divider="slack"] .rule::before, [data-divider="slack"] .rule::after { content: ""; position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--rule); }
-[data-divider="slack"] .rule::before { left: 0; }
-[data-divider="slack"] .rule::after { right: 0; }
+.rule { position: relative; }
+.rule.has-fig { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.rule svg { display: block; overflow: visible; }
+.rule .bar  { fill: none; stroke: var(--rule); stroke-width: 4; stroke-linecap: round; }
+.rule .loop { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; }
+.rule .anchor { fill: var(--rule); }
+.rule .leash { fill: none; stroke: var(--rule); stroke-width: 1.8; stroke-linecap: round; }
+.rule .harness { fill: var(--rule); fill-opacity: .35; stroke: var(--rule); stroke-width: 1.5; stroke-linejoin: round; }
+.rule .ring { fill: var(--bg); stroke: var(--rule); stroke-width: 1.5; }
+.rule .fl { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .fh { fill: var(--bg); stroke: var(--ink); stroke-width: 1.9; }
+/* the idle balancing wobble, pivoting on the feet */
+.rule .wob { transform-origin: 0 0; }
+.rule .wob.on { animation: wobble var(--wd, 3s) ease-in-out var(--wl, 0s) infinite alternate; }
+@keyframes wobble { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
 
 /* ============================================================
-   OPTIONS BAR: delete this block, the <nav class="options"> and
-   the OPTIONS part of the script once you have chosen
+   OPTIONS PANEL: delete this block, the <details class="options">
+   and the OPTIONS part of the script once you have chosen
    ============================================================ */
-.options { position: fixed; inset: auto 0 0 0; z-index: 10; display: grid; gap: .5rem; justify-items: center; padding: .75rem; padding-bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); background: #111; }
-.options div { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
-.options button { font: 600 .8rem system-ui, sans-serif; padding: .45rem .8rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
+.options { position: fixed; inset: auto 0 0 0; z-index: 10; background: #111; color: #fff; font: 600 .8rem/1.3 system-ui, sans-serif; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.options summary { cursor: pointer; padding: .65rem 1rem; list-style: none; text-align: center; }
+.options summary::-webkit-details-marker { display: none; }
+.opt-body { max-height: 46vh; overflow: auto; padding: .1rem .75rem .8rem; display: grid; gap: .6rem; }
+.opt-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .4rem; }
+.opt-row > span { color: #aaa; width: 4rem; text-align: right; }
+.options button { font: inherit; padding: .45rem .8rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
 .options button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
+.options input[type="range"] { width: 9rem; }
+.options output { width: 2.6rem; text-align: left; }
 
-@media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .faq summary::after { transition: none; }
+  .rule .wob.on { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -104,6 +123,7 @@ details > div { padding: 0 1rem 1rem; }
     </div>
   </section>
 
+  <!-- Each .rule is drawn by the script. The figure on a rule belongs to the <details> directly after it. -->
   <section class="faq">
     <div class="wrap">
       <h2>Frequently asked questions</h2>
@@ -148,87 +168,324 @@ details > div { padding: 0 1rem 1rem; }
   </section>
 </main>
 
-<!-- OPTIONS: remove this nav once you have chosen -->
-<nav class="options" aria-label="Design options">
-  <div>
-    <button type="button" data-colour-pick="light">Light</button>
-    <button type="button" data-colour-pick="dark">Dark</button>
+<!-- OPTIONS PANEL: remove once you have chosen -->
+<details class="options" open>
+  <summary>Design options (tap to hide or show)</summary>
+  <div class="opt-body">
+    <div class="opt-row"><span>Colour</span>
+      <button type="button" data-colour="light">Light</button>
+      <button type="button" data-colour="dark">Dark</button>
+    </div>
+    <div class="opt-row"><span>Preset</span>
+      <button type="button" data-preset="sparse">Sparse</button>
+      <button type="button" data-preset="classic">Classic</button>
+      <button type="button" data-preset="dense">Dense</button>
+      <button type="button" data-preset="deep">Deep</button>
+      <button type="button" data-preset="mixed">Mixed</button>
+    </div>
+    <div class="opt-row"><span>Pattern</span>
+      <button type="button" data-pattern="even">Even</button>
+      <button type="button" data-pattern="alternate">Alternate</button>
+      <button type="button" data-pattern="swell">Swell</button>
+    </div>
+    <div class="opt-row"><span>Loops</span>
+      <input type="range" id="loops" min="2" max="14" step="1" aria-label="Number of loops"><output id="loops-out"></output>
+    </div>
+    <div class="opt-row"><span>Depth</span>
+      <input type="range" id="depth" min="8" max="60" step="1" aria-label="Loop depth in pixels"><output id="depth-out"></output>
+    </div>
   </div>
-  <div>
-    <button type="button" data-divider-pick="wave">Wave</button>
-    <button type="button" data-divider-pick="pair">Pair</button>
-    <button type="button" data-divider-pick="weave">Weave</button>
-    <button type="button" data-divider-pick="fade">Fade</button>
-    <button type="button" data-divider-pick="dots">Dots</button>
-    <button type="button" data-divider-pick="slack">Slack</button>
-  </div>
-</nav>
+</details>
 
 <script>
-/* ---------- DIVIDERS ----------
-   Each divider is a list of paths. sine(cycles, amplitude, sign, tapered):
-   cycles = number of wavelengths across the page width, amplitude in px,
-   sign = 1 or -1 (the "negative" of a wave), tapered = fade to flat at the ends. */
-var W = 400, H = 28, MID = 14, NS = 'http://www.w3.org/2000/svg';
-function sine(cycles, amp, sign, tapered) {
-  var n = cycles * 40, d = [];
-  for (var i = 0; i <= n; i++) {
-    var x = i / n;
-    var env = tapered ? Math.sin(Math.PI * x) : 1;
-    var y = MID - sign * amp * env * Math.sin(2 * Math.PI * cycles * x);
-    d.push((i ? 'L' : 'M') + (x * W).toFixed(1) + ' ' + y.toFixed(2));
-  }
-  return d.join(' ');
-}
-var DIVIDERS = {
-  wave:  [{ d: sine(4, 8, 1), w: 3 }],
-  pair:  [{ d: sine(4, 7, 1), w: 2.5 }, { d: sine(4, 7, -1), w: 2.5 }],
-  weave: [{ d: sine(4, 8, 1), w: 2 }, { d: sine(4, 8, -1), w: 2 },
-          { d: sine(2, 5, 1), w: 2 }, { d: sine(2, 5, -1), w: 2 }],
-  fade:  [{ d: sine(4, 11, 1, true), w: 3 }],
-  dots:  [{ d: sine(4, 8, 1), w: 5, dash: '0 9' }],
-  slack: [{ d: 'M0 4 Q200 40 400 4', w: 3 }]
-};
-function drawDividers(name) {
-  var rules = document.querySelectorAll('.rule');
-  for (var i = 0; i < rules.length; i++) {
-    var svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    svg.setAttribute('preserveAspectRatio', 'none');
-    DIVIDERS[name].forEach(function (p) {
-      var path = document.createElementNS(NS, 'path');
-      path.setAttribute('d', p.d);
-      path.setAttribute('stroke-width', p.w);
-      if (p.dash) path.setAttribute('stroke-dasharray', p.dash);
-      svg.appendChild(path);
-    });
-    rules[i].textContent = '';
-    rules[i].appendChild(svg);
-  }
-}
-
-/* ---------- OPTIONS (remove along with the nav) ---------- */
 (function () {
-  var root = document.documentElement;
-  var colours = ['light', 'dark'], dividers = Object.keys(DIVIDERS);
-  function apply(colour, divider) {
-    root.setAttribute('data-colour', colour);
-    root.setAttribute('data-divider', divider);
-    drawDividers(divider);
-    document.querySelectorAll('[data-colour-pick]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.colourPick === colour); });
-    document.querySelectorAll('[data-divider-pick]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.dividerPick === divider); });
-    try { history.replaceState(null, '', '#' + colour + '-' + divider); } catch (e) {}
+  'use strict';
+
+  /* ==========================================================
+     SETTINGS you can edit directly once you have chosen.
+     (The options panel changes these live for testing.)
+     ========================================================== */
+  var cfg = {
+    colour: 'dark',      // 'dark' or 'light'
+    loops: 6,            // number of backup loops along the bar
+    depth: 22,           // how far the deepest loop hangs below the bar, in px
+    pattern: 'even'      // 'even', 'alternate' (deep, shallow, deep...) or 'swell' (deeper in the middle)
+  };
+  var PRESETS = {
+    sparse:  { loops: 3,  depth: 36, pattern: 'even' },
+    classic: { loops: 6,  depth: 22, pattern: 'even' },
+    dense:   { loops: 10, depth: 12, pattern: 'even' },
+    deep:    { loops: 4,  depth: 50, pattern: 'even' },
+    mixed:   { loops: 6,  depth: 32, pattern: 'alternate' }
+  };
+
+  /* Geometry (px) */
+  var TOP = 40;          // room above the bar for the standing figure
+  var BELOW_MIN = 54;    // room below the bar for the hanging figure
+  var ZONE = 76;         // right-hand space reserved for the figure (loops stop before it)
+  var FIG_FROM_RIGHT = 38;
+  var STAND_Y = -15;     // hip height above the bar when standing
+  var HANG_Y = 30;       // hip depth below the bar when hanging (= leash length)
+
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
   }
-  var parts = location.hash.replace('#', '').split('-');
-  var colour = colours.indexOf(parts[0]) > -1 ? parts[0] : 'dark';
-  var divider = dividers.indexOf(parts[1]) > -1 ? parts[1] : 'wave';
-  document.querySelectorAll('[data-colour-pick]').forEach(function (b) {
-    b.addEventListener('click', function () { colour = b.dataset.colourPick; apply(colour, divider); });
+
+  /* ---------- Catenary loops ---------- */
+  // Solve a*(cosh(h/a)-1) = d for the catenary parameter a (h = half span, d = sag)
+  function catenaryA(h, d) {
+    var lo = 0.01, hi = 1e6;
+    for (var i = 0; i < 80; i++) {
+      var mid = (lo + hi) / 2;
+      if (mid * (Math.cosh(h / mid) - 1) - d > 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  function loopPath(x0, x1, y0, d) {
+    var h = (x1 - x0) / 2, xm = (x0 + x1) / 2, a = catenaryA(h, d), N = 28, pts = [];
+    for (var i = 0; i <= N; i++) {
+      var x = x0 + (x1 - x0) * i / N;
+      var y = y0 + d - a * (Math.cosh((x - xm) / a) - 1);
+      pts.push((i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1));
+    }
+    return pts.join(' ');
+  }
+  function depthFactor(i, n) {
+    if (cfg.pattern === 'alternate') return i % 2 === 0 ? 1 : 0.55;
+    if (cfg.pattern === 'swell') return 0.55 + 0.45 * Math.sin(Math.PI * (i + 0.5) / n);
+    return 1;
+  }
+
+  /* ---------- The stick figure ----------
+     Joint positions are relative to the hip (x right, y down), in px.
+     hd head, nk neck, eL/hL left elbow/hand, eR/hR right elbow/hand,
+     kL/fL left knee/foot, kR/fR right knee/foot. */
+  var STAND  = { hd:[0,-14.5], nk:[0,-10], eL:[-6,-11.5], hL:[-12,-16.5], eR:[6,-9],  hR:[12,-4.5],  kL:[-3.5,6.5], fL:[-2.5,13],  kR:[3.5,6.5], fR:[2.5,13] };
+  var FLAIL1 = { hd:[0,-14.5], nk:[0,-10], eL:[-8,-13],   hL:[-15,-20],  eR:[8,-13], hR:[14,-21],   kL:[-4.5,6.5], fL:[-4.5,13], kR:[3.5,6],   fR:[5,12] };
+  var FLAIL2 = { hd:[1,-14.5], nk:[0,-10], eL:[-8,-9],    hL:[-13,-4],   eR:[8,-14], hR:[13,-22],   kL:[-5,6],     fL:[-9,10],   kR:[4,7],     fR:[7,14] };
+  var FLAIL3 = { hd:[1,-14.5], nk:[0,-10], eL:[-8,-12],   hL:[-14,-22],  eR:[8,-11], hR:[15,-18],   kL:[-5,6],     fL:[-8,12],   kR:[4,6.5],   fR:[7,10] };
+  var HANG   = { hd:[7,-15],   nk:[5,-10], eL:[0,-14],    hL:[0,-21],    eR:[11,-6], hR:[6,1],      kL:[-3.5,6.5], fL:[-4.5,13.5], kR:[4,6.5], fR:[5,13] };
+  var CLIMB  = { hd:[0,-14.5], nk:[0,-10], eL:[-5,-15],   hL:[-2,-23],   eR:[5,-15], hR:[2,-23],    kL:[-5,5],     fL:[-3,10],   kR:[5,5],     fR:[3,10] };
+  var JOINTS = ['hd','nk','eL','hL','eR','hR','kL','fL','kR','fR'];
+
+  // A state = body rotation (deg), hip position relative to the bar anchor, leash opacity, pose
+  function S(rot, x, y, la, pose) { return { rot: rot, x: x, y: y, la: la, pose: pose }; }
+  var S_STAND = S(0, 0, STAND_Y, 0, STAND);
+  var S_HANG  = S(0, 0, HANG_Y, 1, HANG);
+
+  var EASE = {
+    inOut: function (t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; },
+    'in':  function (t) { return t * t; },
+    out:   function (t) { return 1 - (1 - t) * (1 - t); }
+  };
+  function mixPose(a, b, e) {
+    var o = {};
+    JOINTS.forEach(function (j) { o[j] = [a[j][0] + (b[j][0] - a[j][0]) * e, a[j][1] + (b[j][1] - a[j][1]) * e]; });
+    return o;
+  }
+  function mixState(a, b, e) {
+    return S(a.rot + (b.rot - a.rot) * e, a.x + (b.x - a.x) * e, a.y + (b.y - a.y) * e, a.la + (b.la - a.la) * e, mixPose(a.pose, b.pose, e));
+  }
+  function key(t, e, st) { st.t = t; st.e = e; return st; }
+
+  // The fall: wobble, lean, windmill, slip off, get caught by the leash, swing and settle.
+  function fallKeys(cur) {
+    var k0 = key(0, 'inOut', S(cur.rot, cur.x, cur.y, cur.la, cur.pose));
+    return [k0,
+      key(220,  'inOut', S(-16, -3.6, -14.5, 0, FLAIL1)),
+      key(480,  'inOut', S(-42, -8.7, -11.7, 0, FLAIL2)),
+      key(720,  'in',    S(-90, -13,  3,     1, FLAIL3)),
+      key(950,  'in',    S(8,   0,    37,    1, HANG)),
+      key(1190, 'inOut', S(-7,  0,    27,    1, HANG)),
+      key(1470, 'inOut', S(4,   0,    31.5,  1, HANG)),
+      key(1800, 'inOut', S(-1.5,0,    29.5,  1, HANG)),
+      key(2150, 'inOut', S(0,   0,    HANG_Y,1, HANG))];
+  }
+  // Climbing back up when the section closes.
+  function climbKeys(cur) {
+    var k0 = key(0, 'inOut', S(cur.rot, cur.x, cur.y, cur.la, cur.pose));
+    return [k0,
+      key(380, 'inOut', S(0, 0, 12,      1, CLIMB)),
+      key(600, 'inOut', S(0, 0, -4,      0, CLIMB)),
+      key(850, 'inOut', S(0, 0, STAND_Y, 0, STAND))];
+  }
+  function sample(keys, T) {
+    var last = keys[keys.length - 1];
+    if (T >= last.t) return last;
+    var i = 0;
+    while (keys[i + 1].t <= T) i++;
+    var a = keys[i], b = keys[i + 1];
+    return mixState(a, b, EASE[b.e]((T - a.t) / (b.t - a.t)));
+  }
+  function pt(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+
+  function draw(fig, s) {
+    var p = s.pose, f = fig.parts;
+    f.body.setAttribute('transform', 'translate(' + s.x.toFixed(2) + ' ' + s.y.toFixed(2) + ') rotate(' + s.rot.toFixed(2) + ')');
+    f.torso.setAttribute('d', 'M' + pt(p.nk) + ' L0 0');
+    f.armL.setAttribute('d', 'M' + pt(p.nk) + ' L' + pt(p.eL) + ' L' + pt(p.hL));
+    f.armR.setAttribute('d', 'M' + pt(p.nk) + ' L' + pt(p.eR) + ' L' + pt(p.hR));
+    f.legL.setAttribute('d', 'M0 0 L' + pt(p.kL) + ' L' + pt(p.fL));
+    f.legR.setAttribute('d', 'M0 0 L' + pt(p.kR) + ' L' + pt(p.fR));
+    f.head.setAttribute('cx', p.hd[0].toFixed(1));
+    f.head.setAttribute('cy', p.hd[1].toFixed(1));
+    f.ring.setAttribute('opacity', Math.max(0, Math.min(1, s.la)).toFixed(2));
+    if (s.la > 0.02) {
+      var dist = Math.sqrt(s.x * s.x + s.y * s.y);
+      var slack = Math.max(0, HANG_Y - dist);
+      f.leash.setAttribute('d', 'M0 0 Q' + (s.x / 2).toFixed(1) + ' ' + (s.y / 2 + slack * 0.7).toFixed(1) + ' ' + s.x.toFixed(1) + ' ' + s.y.toFixed(1));
+      f.leash.setAttribute('opacity', Math.min(1, s.la).toFixed(2));
+    } else {
+      f.leash.setAttribute('d', '');
+    }
+  }
+
+  function play(fig, keys) {
+    var start = performance.now(), end = keys[keys.length - 1].t;
+    function tick(now) {
+      var T = now - start, s = sample(keys, T);
+      fig.cur = s;
+      draw(fig, s);
+      if (T < end) {
+        fig.raf = requestAnimationFrame(tick);
+      } else {
+        fig.raf = 0;
+        if (!fig.target && !reduce) fig.parts.wob.classList.add('on');
+      }
+    }
+    fig.raf = requestAnimationFrame(tick);
+  }
+
+  function setHung(fig, hung, animate) {
+    if (fig.target === hung) return;
+    fig.target = hung;
+    if (fig.raf) { cancelAnimationFrame(fig.raf); fig.raf = 0; }
+    var end = hung ? S_HANG : S_STAND;
+    if (!animate || reduce) {
+      fig.cur = end;
+      draw(fig, end);
+      fig.parts.wob.classList.toggle('on', !hung && !reduce);
+      return;
+    }
+    fig.parts.wob.classList.remove('on');
+    play(fig, hung ? fallKeys(fig.cur) : climbKeys(fig.cur));
+  }
+
+  /* ---------- Build one divider ---------- */
+  function build(rule) {
+    var W = Math.round(rule.getBoundingClientRect().width);
+    if (!W) return;
+    if (rule._fig && rule._fig.raf) cancelAnimationFrame(rule._fig.raf);
+    var details = rule.nextElementSibling;
+    if (details && details.tagName !== 'DETAILS') details = null;
+
+    var below = Math.max(cfg.depth + 10, BELOW_MIN), H = TOP + below, barY = TOP;
+    rule.style.height = H + 'px';
+    rule.textContent = '';
+    rule.classList.toggle('has-fig', !!details);
+    var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H }, rule);
+
+    // loops hang from evenly spaced anchors
+    var n = cfg.loops, x0 = 8, x1 = Math.max(W - ZONE, 80), anchors = [];
+    for (var i = 0; i <= n; i++) anchors.push(x0 + (x1 - x0) * i / n);
+    for (var j = 0; j < n; j++) {
+      el('path', { class: 'loop', d: loopPath(anchors[j], anchors[j + 1], barY, cfg.depth * depthFactor(j, n)) }, svg);
+    }
+    el('path', { class: 'bar', d: 'M3 ' + barY + ' L' + (W - 3) + ' ' + barY }, svg);
+    anchors.forEach(function (ax) { el('circle', { class: 'anchor', cx: ax, cy: barY, r: 3.3 }, svg); });
+
+    if (!details) { rule._fig = null; return; }
+
+    // the figure
+    var fx = W - FIG_FROM_RIGHT;
+    var g = el('g', { transform: 'translate(' + fx + ' ' + barY + ')' }, svg);
+    el('circle', { class: 'anchor', cx: 0, cy: 0, r: 3.3 }, g);
+    var parts = {};
+    parts.leash = el('path', { class: 'leash' }, g);
+    parts.body = el('g', {}, g);
+    var piv = el('g', { transform: 'translate(0 13)' }, parts.body);      // pivot on the feet
+    parts.wob = el('g', { 'class': 'wob' }, piv);
+    var inner = el('g', { transform: 'translate(0 -13)' }, parts.wob);
+    parts.torso = el('path', { class: 'fl' }, inner);
+    parts.armL = el('path', { class: 'fl' }, inner);
+    parts.armR = el('path', { class: 'fl' }, inner);
+    parts.legL = el('path', { class: 'fl' }, inner);
+    parts.legR = el('path', { class: 'fl' }, inner);
+    el('path', { class: 'harness', d: 'M-4 -1.5 L4 -1.5 L3.4 3.5 L-3.4 3.5 Z' }, inner);
+    parts.ring = el('circle', { class: 'ring', cx: 0, cy: 0, r: 1.7 }, inner);
+    parts.head = el('circle', { class: 'fh', r: 3.6 }, inner);
+    parts.wob.style.setProperty('--wd', (2.6 + Math.random() * 1.2).toFixed(2) + 's');
+    parts.wob.style.setProperty('--wl', (-Math.random() * 3).toFixed(2) + 's');
+
+    var fig = { parts: parts, raf: 0, target: null, cur: null };
+    rule._fig = fig;
+    setHung(fig, !!details.open, false);
+  }
+
+  var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
+  function renderAll() { rules.forEach(build); }
+
+  rules.forEach(function (rule) {
+    var d = rule.nextElementSibling;
+    if (!d || d.tagName !== 'DETAILS') return;
+    d.addEventListener('toggle', function () { if (rule._fig) setHung(rule._fig, d.open, true); });
+    rule.addEventListener('click', function () { d.open = !d.open; });
   });
-  document.querySelectorAll('[data-divider-pick]').forEach(function (b) {
-    b.addEventListener('click', function () { divider = b.dataset.dividerPick; apply(colour, divider); });
+
+  var lastW = 0;
+  function checkWidth() {
+    var w = Math.round(document.querySelector('.faq .wrap').getBoundingClientRect().width);
+    if (w !== lastW) { lastW = w; renderAll(); }
+  }
+  if (window.ResizeObserver) new ResizeObserver(checkWidth).observe(document.querySelector('.faq .wrap'));
+  else window.addEventListener('resize', checkWidth);
+
+  /* ==========================================================
+     OPTIONS PANEL (remove along with the <details class="options">)
+     ========================================================== */
+  var root = document.documentElement;
+  var loopsIn = document.getElementById('loops'), depthIn = document.getElementById('depth');
+  function clamp(v, lo, hi, dflt) { v = parseInt(v, 10); return isNaN(v) ? dflt : Math.max(lo, Math.min(hi, v)); }
+
+  var q = new URLSearchParams(location.hash.replace('#', ''));
+  if (q.get('colour') === 'light' || q.get('colour') === 'dark') cfg.colour = q.get('colour');
+  cfg.loops = clamp(q.get('loops'), 2, 14, cfg.loops);
+  cfg.depth = clamp(q.get('depth'), 8, 60, cfg.depth);
+  if (['even', 'alternate', 'swell'].indexOf(q.get('pattern')) > -1) cfg.pattern = q.get('pattern');
+
+  function sync() {
+    root.setAttribute('data-colour', cfg.colour);
+    loopsIn.value = cfg.loops; depthIn.value = cfg.depth;
+    document.getElementById('loops-out').textContent = cfg.loops;
+    document.getElementById('depth-out').textContent = cfg.depth + 'px';
+    document.querySelectorAll('[data-colour]').forEach(function (b) { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', b.dataset.colour === cfg.colour); });
+    document.querySelectorAll('[data-pattern]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.pattern === cfg.pattern); });
+    document.querySelectorAll('[data-preset]').forEach(function (b) {
+      var p = PRESETS[b.dataset.preset];
+      b.setAttribute('aria-pressed', p.loops === cfg.loops && p.depth === cfg.depth && p.pattern === cfg.pattern);
+    });
+    try { history.replaceState(null, '', '#' + new URLSearchParams(cfg).toString()); } catch (e) {}
+  }
+  document.querySelectorAll('button[data-colour]').forEach(function (b) {
+    b.addEventListener('click', function () { cfg.colour = b.dataset.colour; sync(); });
   });
-  apply(colour, divider);
+  document.querySelectorAll('[data-preset]').forEach(function (b) {
+    b.addEventListener('click', function () { var p = PRESETS[b.dataset.preset]; cfg.loops = p.loops; cfg.depth = p.depth; cfg.pattern = p.pattern; sync(); renderAll(); });
+  });
+  document.querySelectorAll('[data-pattern]').forEach(function (b) {
+    b.addEventListener('click', function () { cfg.pattern = b.dataset.pattern; sync(); renderAll(); });
+  });
+  loopsIn.addEventListener('input', function () { cfg.loops = +loopsIn.value; sync(); renderAll(); });
+  depthIn.addEventListener('input', function () { cfg.depth = +depthIn.value; sync(); renderAll(); });
+
+  sync();
+  checkWidth();
 })();
 </script>
 </body>
