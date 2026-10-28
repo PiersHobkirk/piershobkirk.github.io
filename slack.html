@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page title</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Archivo+Black&family=Figtree:wght@400;600;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BASE (shared structure). Theme rules further down.
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding-bottom: 5rem; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; }
+.wrap { width: min(100% - 2.5rem, var(--measure, 44rem)); margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.1; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* Image placeholders: replace each <div class="ph"> with <img src="images/your-photo.jpg" alt="..."> */
+.ph { display: grid; place-items: center; text-align: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; overflow: hidden; }
+img { max-width: 100%; display: block; }
+.ph.wide { aspect-ratio: 16 / 9; }
+.ph.tall { aspect-ratio: 4 / 5; }
+
+.hero { padding-block: clamp(2.5rem, 8vw, 5rem) clamp(2rem, 5vw, 3rem); }
+.hero h1 { font-size: clamp(2.4rem, 9vw, 4.2rem); margin-bottom: .6rem; }
+.lede { font-size: 1.2rem; max-width: 34rem; }
+.hero .ph { margin-top: 1.75rem; }
+
+.intro { padding-block: 2rem; }
+.intro .wrap { display: grid; gap: 1.75rem; }
+.intro h2, .faq h2, .links h2 { font-size: clamp(1.6rem, 5vw, 2.2rem); margin-bottom: .8rem; }
+
+.faq { padding-block: 2rem; }
+details { border: var(--d-border); background: var(--d-bg); margin-bottom: .75rem; }
+summary { cursor: pointer; padding: 1rem 1.1rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-size: 1.4rem; line-height: 1; transition: transform .2s; flex: none; }
+details[open] summary::after { transform: rotate(45deg); }
+details > div { padding: 0 1.1rem 1rem; }
+
+.links { padding-block: 2rem 3rem; }
+.links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.links a { display: inline-block; padding: .6rem 1rem; text-decoration: none; font-weight: 600; border: var(--btn-border); background: var(--btn-bg); color: var(--btn-ink); }
+
+/* Design switcher: delete this block, the <nav class="switcher"> and the <script> once you pick */
+.switcher { position: fixed; inset: auto 0 0 0; z-index: 10; display: flex; justify-content: center; gap: .5rem; padding: .75rem; padding-bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); background: #111; }
+.switcher button { font: 600 .9rem system-ui, sans-serif; padding: .55rem 1rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
+.switcher button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
+
+@media (min-width: 760px) {
+  .intro .wrap { grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; }
+}
+
+/* ============================================================
+   DESIGN 1: PARK  (soft, friendly, rounded, green)
+   ============================================================ */
+[data-theme="park"] {
+  --bg: #eef4ee; --ink: #1c2b24; --accent: #23704f; --ph-bg: #cfe2d4; --ph-ink: #4d6d5b;
+  --display: "Figtree", system-ui, sans-serif; --body: "Figtree", system-ui, sans-serif;
+  --measure: 52rem;
+  --d-border: 1px solid #c3d7c9; --d-bg: #fff;
+  --btn-border: 2px solid var(--accent); --btn-bg: var(--accent); --btn-ink: #fff;
+}
+[data-theme="park"] h1, [data-theme="park"] h2 { font-weight: 800; letter-spacing: -.02em; }
+[data-theme="park"] .ph { border-radius: 28px; }
+[data-theme="park"] details { border-radius: 16px; }
+[data-theme="park"] .links a { border-radius: 999px; }
+[data-theme="park"] .hero .wrap { text-align: left; }
+
+/* ============================================================
+   DESIGN 2: POSTER  (bold, high contrast, chunky)
+   ============================================================ */
+[data-theme="poster"] {
+  --bg: #16213e; --ink: #f6f3ea; --accent: #ffc531; --ph-bg: #243457; --ph-ink: #9fb0d4;
+  --display: "Archivo Black", Impact, sans-serif; --body: "Archivo", system-ui, sans-serif;
+  --measure: 60rem;
+  --d-border: 3px solid #f6f3ea; --d-bg: transparent;
+  --btn-border: 3px solid #ffc531; --btn-bg: #ffc531; --btn-ink: #16213e;
+}
+[data-theme="poster"] h1 { font-size: clamp(3rem, 14vw, 7rem); line-height: .95; text-transform: uppercase; color: var(--accent); }
+[data-theme="poster"] h2 { text-transform: uppercase; }
+[data-theme="poster"] .lede { font-size: 1.3rem; }
+[data-theme="poster"] .ph { border: 3px solid var(--ink); box-shadow: 10px 10px 0 var(--accent); margin-bottom: 10px; }
+[data-theme="poster"] summary::after { color: var(--accent); }
+[data-theme="poster"] .links a { box-shadow: 5px 5px 0 #f6f3ea; }
+
+/* ============================================================
+   DESIGN 3: JOURNAL  (quiet, editorial, single column)
+   ============================================================ */
+[data-theme="journal"] {
+  --bg: #fafaf7; --ink: #1d1f22; --accent: #1f4e5f; --ph-bg: #e6e8e5; --ph-ink: #7b8087;
+  --display: "Fraunces", Georgia, serif; --body: "Newsreader", Georgia, serif;
+  --measure: 38rem;
+  --d-border: 0; --d-bg: transparent;
+  --btn-border: 1px solid var(--accent); --btn-bg: transparent; --btn-ink: var(--accent);
+}
+[data-theme="journal"] body, [data-theme="journal"] { font-size: 1.15rem; line-height: 1.7; }
+[data-theme="journal"] h1 { font-weight: 400; font-size: clamp(2.4rem, 8vw, 3.6rem); }
+[data-theme="journal"] h2 { font-weight: 400; }
+[data-theme="journal"] .ph { border-radius: 2px; }
+[data-theme="journal"] .intro .wrap { grid-template-columns: 1fr; gap: 1.5rem; }
+[data-theme="journal"] details { border-top: 1px solid #d5d7d3; margin: 0; }
+[data-theme="journal"] details:last-of-type { border-bottom: 1px solid #d5d7d3; }
+[data-theme="journal"] summary { padding-inline: 0; font-family: var(--display); font-weight: 400; font-size: 1.15rem; }
+[data-theme="journal"] details > div { padding-inline: 0; }
+[data-theme="journal"] .links a { border-radius: 2px; }
+
+@media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Page title</h1>
+    <p class="lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+    <!-- Hero image slot -->
+    <div class="ph wide">Image slot 1 (16:9)</div>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <!-- Second image slot -->
+      <div class="ph tall">Image slot 2 (4:5)</div>
+      <div>
+        <h2>Section heading</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent libero. Sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet.</p>
+        <p>Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa vestibulum lacinia arcu eget nulla.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="wrap">
+      <h2>Frequently asked questions</h2>
+      <details open>
+        <summary>Lorem ipsum dolor sit amet?</summary>
+        <div><p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p></div>
+      </details>
+      <details>
+        <summary>Ut enim ad minim veniam?</summary>
+        <div><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p></div>
+      </details>
+      <details>
+        <summary>Excepteur sint occaecat cupidatat?</summary>
+        <div><p>Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem.</p></div>
+      </details>
+      <details>
+        <summary>Nemo enim ipsam voluptatem?</summary>
+        <div><p>Quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione.</p></div>
+      </details>
+      <details>
+        <summary>Neque porro quisquam est?</summary>
+        <div><p>Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora.</p></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="links">
+    <div class="wrap">
+      <h2>Find out more</h2>
+      <ul>
+        <li><a href="#">Link one</a></li>
+        <li><a href="#">Link two</a></li>
+        <li><a href="#">Link three</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<!-- DESIGN SWITCHER: remove this nav and the script below once you have chosen -->
+<nav class="switcher" aria-label="Design options">
+  <button type="button" data-pick="park">Park</button>
+  <button type="button" data-pick="poster">Poster</button>
+  <button type="button" data-pick="journal">Journal</button>
+</nav>
+<script>
+(function () {
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('[data-pick]');
+  function pick(name) {
+    root.setAttribute('data-theme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.pick === name); });
+    try { history.replaceState(null, '', '#' + name); } catch (e) {}
+  }
+  buttons.forEach(function (b) { b.addEventListener('click', function () { pick(b.dataset.pick); }); });
+  var start = location.hash.replace('#', '');
+  pick(['park', 'poster', 'journal'].indexOf(start) > -1 ? start : 'park');
+})();
+</script>
+</body>
+</html>
