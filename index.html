@@ -68,7 +68,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .rule svg { display: block; overflow: visible; }
 .rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
 .rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.rule .fh { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
+.rule .fh { fill: var(--ink); stroke: none; }
 
 /* ============================================================
    LIGHT / DARK BUTTON
@@ -253,8 +253,6 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   // Facing left. Arm A is the front (left) arm, leg A the front (left) leg. Both knees point left.
   var POSES = {
-    stand:   solve({ hip: [0, -19.5], a: -4,  armA: { fk: [-115, -150] }, armB: { fk: [105, 90] },
-                     legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } }),
     // the fall: a tip, then about three-quarters of an anticlockwise roll, loose to tucked to open
     tip:     solve({ hip: [-9, -15], a: -48,   armA: { fk: [-75, -100] }, armB: { fk: [160, 185] },
                      legA: { ik: [-13, 3], bend: 1 }, legB: { ik: [2, FOOT_Y], bend: 1 } }),
@@ -267,9 +265,6 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                      legA: { fk: [18, 4] }, legB: { fk: [32, 12] } }),
     caughtR: solve({ pin: [0, 0], a: -14, head: -40, armA: { fk: [160, 235] }, armB: { fk: [25, 10] },
                      legA: { fk: [-18, -5] }, legB: { fk: [-8, 6] } }),
-    // hanging by one hand on the node, arm only slightly bent, head tucked beside it
-    hang:    solve({ pin: [0, 0], a: 0, head: -40, armA: { fk: [155, 205] }, armB: { fk: [-12, -14] },
-                     legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } }),
     // climbing back up: swing a leg up and out, hook it over the line far from the hands,
     // lift the body horizontal, roll it over the line with the free leg hanging below, then stand
     c1:      solve({ hip: [0, 24], a: 0,       armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
@@ -284,6 +279,42 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                      legA: { ik: [-6, FOOT_Y], bend: 1 }, legB: { ik: [4, FOOT_Y], bend: 1 } })
   };
 
+  /* Standing and hanging poses differ from divider to divider. Each divider takes the next entry in these
+     tables (and they repeat if you add more sections). Every entry lists only what it changes from the base
+     pose, so a new variant is a single line. Everything else (fall, climb) is shared. */
+  function variant(base, over) {
+    var o = {}, k;
+    for (k in base) o[k] = base[k];
+    for (k in over) o[k] = over[k];
+    return o;
+  }
+  var STAND_BASE = { hip: [0, -19.5], a: -4, armA: { fk: [-115, -150] }, armB: { fk: [105, 90] },
+                     legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } };
+  var STANDS = [
+    {},                                                                                                   // arms up and out, one high, one low
+    { a: 0, armA: { fk: [-128, -165] }, armB: { fk: [128, 165] },
+      legA: { ik: [-4.5, FOOT_Y], bend: 1 }, legB: { ik: [4.5, FOOT_Y], bend: 1 } },                      // both arms up
+    { hip: [0, -19], a: -2, armA: { fk: [-98, -108] }, armB: { fk: [98, 108] },
+      legA: { ik: [-6.5, FOOT_Y], bend: 1 }, legB: { ik: [6.5, FOOT_Y], bend: 1 } },                      // arms wide, feet apart
+    { hip: [0, -19.7], a: -9, armA: { fk: [-85, -72] }, armB: { fk: [122, 152] },
+      legA: { ik: [-3.5, FOOT_Y], bend: 1 }, legB: { ik: [6, FOOT_Y], bend: 1 } },                        // leaning forward, reaching
+    { hip: [0, -18.6], a: 3, armA: { fk: [-152, -178] }, armB: { fk: [70, 105] },
+      legA: { ik: [-5.5, FOOT_Y], bend: 1 }, legB: { ik: [3, FOOT_Y], bend: 1 } }                         // crouched, front arm high
+  ].map(function (o) { return solve(variant(STAND_BASE, o)); });
+
+  var HANG_BASE = { pin: [0, 0], a: 0, head: -40, headOff: [-0.9, 0], armA: { fk: [155, 205] }, armB: { fk: [-12, -14] },
+                    legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } };
+  var HANGS = [
+    {},                                                                                                   // hanging still
+    { a: -8, armA: { fk: [150, 208] }, armB: { fk: [30, 12] }, legA: { fk: [-18, 6] }, legB: { fk: [4, -8] } },   // swinging left, free arm out
+    { a: 7, armA: { fk: [158, 202] }, armB: { fk: [105, 140] }, legA: { fk: [-6, 10] }, legB: { fk: [14, -6] } }, // free arm up and away
+    { a: -3, armA: { fk: [154, 206] }, armB: { fk: [-28, -34] }, legA: { fk: [-32, -4] }, legB: { fk: [10, -6] } }, // one knee bent
+    { a: 5, armA: { fk: [150, 210] }, armB: { fk: [18, 42] }, legA: { fk: [-6, 8] }, legB: { fk: [18, 2] } }        // legs kicked out
+  ].map(function (o) { return solve(variant(HANG_BASE, o)); });
+  function poseFor(fig, name) {
+    return name === 'stand' ? STANDS[fig.v] : name === 'hang' ? HANGS[fig.v] : POSES[name];
+  }
+
   /* Static frames, no smoothing between them. p = which picture, ms = how long it is held,
      j = how hard the loops shake on that frame (default 1; 0 = still). p: null keeps the
      figure as it is and only re-shakes the loops (the settling at the end). */
@@ -295,8 +326,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   // Room needed above and below the bar, measured from the poses themselves
   var EXT_UP = 0, EXT_DOWN = 0;
-  Object.keys(POSES).forEach(function (k) {
-    var P = POSES[k];
+  Object.keys(POSES).map(function (k) { return POSES[k]; }).concat(STANDS, HANGS).forEach(function (P) {
     ['hip', 'sh', 'nk', 'eA', 'hA', 'eB', 'hB', 'kA', 'fA', 'kB', 'fB'].forEach(function (j) {
       EXT_UP = Math.max(EXT_UP, -P[j][1]); EXT_DOWN = Math.max(EXT_DOWN, P[j][1]);
     });
@@ -327,7 +357,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     f.legB.setAttribute('d', rounded([P.nk, P.hip, P.kB, P.fB], r));
     f.head.setAttribute('cx', P.hd[0].toFixed(1));
     f.head.setAttribute('cy', P.hd[1].toFixed(1));
-    f.head.setAttribute('r', (HEAD_R * SCALE).toFixed(2));
+    f.head.setAttribute('r', (HEAD_R * SCALE * 1.12).toFixed(2));   // solid, so a little larger than the outline it replaced
   }
 
   /* ---------- The bar and loops. The bar never moves; only the loops shake ---------- */
@@ -354,7 +384,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     var i = 0;
     (function next() {
       var fr = frames[i++];
-      if (fr.p) draw(fig, POSES[fr.p]);
+      if (fr.p) draw(fig, poseFor(fig, fr.p));
       jitter(fig.geo, fr.j === undefined ? 1 : fr.j);
       fig.timer = i < frames.length ? setTimeout(next, fr.ms) : 0;
     })();
@@ -363,7 +393,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     if (fig.target === hung) return;
     fig.target = hung;
     stopAnim(fig);
-    if (!animate || reduce) { fig.geo.jit = null; renderLine(fig.geo); draw(fig, POSES[hung ? 'hang' : 'stand']); return; }
+    if (!animate || reduce) { fig.geo.jit = null; renderLine(fig.geo); draw(fig, poseFor(fig, hung ? 'hang' : 'stand')); return; }
     play(fig, hung ? FALL : CLIMB);
   }
 
@@ -402,7 +432,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     parts.legA = el('path', { class: 'fl' }, g);
     parts.legB = el('path', { class: 'fl' }, g);
     parts.head = el('circle', { class: 'fh' }, g);
-    var fig = { parts: parts, geo: geo, timer: 0, target: null };
+    var fig = { parts: parts, geo: geo, timer: 0, target: null, v: rules.indexOf(rule) % STANDS.length };
     rule._fig = fig;
     setHung(fig, !!details.open, false);
   }
