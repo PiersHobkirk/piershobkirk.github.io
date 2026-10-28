@@ -67,9 +67,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .faq .rule { display: block; position: relative; }
 .rule svg { display: block; overflow: visible; }
 .rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
-.rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.rule .fh { fill: var(--ink); stroke: none; }
-.rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
+  .rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .rule .fh { fill: var(--ink); stroke: none; }
+  .rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
 
 /* ============================================================
    LIGHT / DARK BUTTON
@@ -293,7 +293,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                      legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } };
   var STANDS = [
     {},                                                                                                   // arms up and out, one high, one low
-    { armA: { ik: [-3.2, -19], bend: 1 }, armB: { ik: [3, -19], bend: -1 } },                           // both hands in pockets
+    { armA: { ik: [-3.2, -19], bend: 1 }, armB: { ik: [2, -19], bend: -1 } },                           // both hands in pockets
     { hip: [0, -19], a: -2, armA: { fk: [-98, -108] }, armB: { fk: [98, 108] },
       legA: { ik: [-6.5, FOOT_Y], bend: 1 }, legB: { ik: [6.5, FOOT_Y], bend: 1 } },                      // arms wide, feet apart
     { hip: [0, -19.7], a: -9, armA: { fk: [-85, -72] }, armB: { fk: [122, 152] },
@@ -306,7 +306,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                     legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } };
   var HANGS = [
     {},                                                                                                   // hanging still
-    { armB: { ik: [3, 24.5], bend: -1 }, legA: { fk: [-12, 4] }, legB: { fk: [8, -3] } },                          // free hand on hip (in a pocket)
+    { armB: { ik: [2, 24.5], bend: -1 }, legA: { fk: [-12, 4] }, legB: { fk: [8, -3] } },                          // free hand on hip (in a pocket)
     { a: 7, armA: { fk: [158, 202] }, armB: { fk: [105, 140] }, legA: { fk: [-6, 10] }, legB: { fk: [14, -6] } }, // free arm up and away
     { a: -3, armA: { fk: [154, 206] }, armB: { fk: [-28, -34] }, legA: { fk: [-32, -4] }, legB: { fk: [10, -6] } }, // one knee bent
     { a: 5, armA: { fk: [150, 210] }, armB: { fk: [18, 42] }, legA: { fk: [-6, 8] }, legB: { fk: [18, 2] } }        // legs kicked out
