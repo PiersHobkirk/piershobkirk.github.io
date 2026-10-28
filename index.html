@@ -1,116 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-colour="dark" data-divider="wave">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Page title</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   BASE (shared structure). Theme rules further down.
+   COLOURS: two schemes, switched by data-colour on <html>
+   ============================================================ */
+[data-colour="dark"] {
+  --bg: #14231b; --ink: #e8f1ea; --accent: #8fd0a9; --rule: #8fd0a9;
+  --ph-bg: #22382c; --ph-ink: #8aa896; --btn-bg: #8fd0a9; --btn-ink: #14231b;
+}
+[data-colour="light"] {
+  --bg: #eef4ee; --ink: #1c2b24; --accent: #23704f; --rule: #23704f;
+  --ph-bg: #cfe2d4; --ph-ink: #4d6d5b; --btn-bg: #23704f; --btn-ink: #ffffff;
+}
+
+/* ============================================================
+   LAYOUT: centred, narrow column, stacked
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; padding-bottom: 5rem; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.15rem; line-height: 1.7; text-align: var(--align, center); }
-.wrap { width: min(100% - 2.5rem, var(--measure, 50rem)); margin-inline: auto; }
-h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; line-height: 1.1; }
+body {
+  margin: 0; padding-bottom: 10rem; background: var(--bg); color: var(--ink);
+  font-family: "Averia Serif Libre", Georgia, serif; font-size: 1.1rem; line-height: 1.7; text-align: center;
+}
+.wrap { width: min(100% - 2.5rem, 40rem); margin-inline: auto; }
+h1, h2 { font-weight: 700; margin: 0; line-height: 1.15; }
 p { margin: 0 0 1em; }
 a { color: var(--accent); }
 a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 /* Image placeholder: replace <div class="ph"> with <img src="images/your-photo.jpg" alt="..."> */
-.ph { display: grid; place-items: center; text-align: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; overflow: hidden; }
+.ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
 img { max-width: 100%; display: block; }
-.ph.tall { aspect-ratio: 4 / 5; }
 
 .hero { padding-block: clamp(3rem, 9vw, 5.5rem) 1.5rem; }
-.hero h1 { font-size: clamp(2.5rem, 9vw, 4.2rem); margin-bottom: .7rem; }
-.lede { font-size: 1.25rem; max-width: 34rem; margin-inline: var(--lede-margin, auto); }
+.hero h1 { font-size: clamp(2.3rem, 9vw, 3.8rem); margin-bottom: .8rem; }
+.lede { font-size: 1.2rem; max-width: 32rem; margin-inline: auto; }
 
 .intro { padding-block: 2rem; }
-.intro .wrap { display: grid; gap: 1.75rem; align-items: center; }
-.intro h2, .faq h2, .links h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); margin-bottom: .8rem; }
+.intro .wrap > div { margin-top: 1.5rem; }
+h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
 .faq { padding-block: 2rem; }
 .faq h2 { margin-bottom: 1.5rem; }
-details { background: var(--d-bg); }
-summary { cursor: pointer; padding: 1.1rem 1rem; font-family: var(--display); font-size: 1.2rem; list-style: none; text-align: var(--align, center); }
+summary { cursor: pointer; padding: 1.1rem 1rem; font-size: 1.2rem; list-style: none; }
 summary::-webkit-details-marker { display: none; }
 summary::after { content: "+"; display: inline-block; margin-left: .6rem; font-size: 1.4rem; line-height: 1; transition: transform .2s; }
 details[open] summary::after { transform: rotate(45deg); }
 details > div { padding: 0 1rem 1rem; }
 
-/* Divider between FAQ items (shape is set per theme) */
-.rule { position: relative; }
-
 .links { padding-block: 2rem 3rem; }
-.links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: var(--links-justify, center); }
-.links a { display: inline-block; padding: .6rem 1.1rem; text-decoration: none; font-family: var(--body); font-weight: 500; border: 2px solid var(--accent); background: var(--btn-bg); color: var(--btn-ink); border-radius: 999px; }
-
-/* Design switcher: delete this block, the <nav class="switcher"> and the <script> once you pick */
-.switcher { position: fixed; inset: auto 0 0 0; z-index: 10; display: flex; justify-content: center; gap: .5rem; padding: .75rem; padding-bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); background: #111; }
-.switcher button { font: 600 .9rem system-ui, sans-serif; padding: .55rem 1rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
-.switcher button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
-
-@media (min-width: 760px) {
-  .intro .wrap { grid-template-columns: 1fr 1fr; gap: 3rem; }
-}
+.links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+.links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
 
 /* ============================================================
-   PARK 1: your spec. Park colours, Journal fonts, all centred,
-   image left / text right, thick rounded divider bars.
+   DIVIDERS: drawn by the script at the bottom (see DIVIDERS).
    ============================================================ */
-[data-theme="park1"] {
-  --bg: #eef4ee; --ink: #1c2b24; --accent: #23704f; --ph-bg: #cfe2d4; --ph-ink: #4d6d5b;
-  --display: "Fraunces", Georgia, serif; --body: "Newsreader", Georgia, serif;
-  --d-bg: transparent; --btn-bg: #23704f; --btn-ink: #fff;
-}
-[data-theme="park1"] .ph { border-radius: 28px; }
-[data-theme="park1"] .rule { height: 6px; border-radius: 999px; background: #bcd3c3; }
+.rule { position: relative; height: 28px; margin-block: .25rem; }
+.rule svg { display: block; width: 100%; height: 28px; overflow: visible; }
+.rule path { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+/* "Slack" divider anchors */
+[data-divider="slack"] .rule::before, [data-divider="slack"] .rule::after { content: ""; position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--rule); }
+[data-divider="slack"] .rule::before { left: 0; }
+[data-divider="slack"] .rule::after { right: 0; }
 
 /* ============================================================
-   PARK 2: colour-block header, left aligned, arch-shaped image on
-   the right, sunny yellow accent, rounded FAQ cards, sans headings.
+   OPTIONS BAR: delete this block, the <nav class="options"> and
+   the OPTIONS part of the script once you have chosen
    ============================================================ */
-[data-theme="park2"] {
-  --bg: #eef4ee; --ink: #1c2b24; --accent: #23704f; --ph-bg: #cfe2d4; --ph-ink: #4d6d5b;
-  --display: "Figtree", system-ui, sans-serif; --body: "Newsreader", Georgia, serif;
-  --align: left; --lede-margin: 0; --links-justify: flex-start;
-  --d-bg: #fff; --btn-bg: #f2b84b; --btn-ink: #1c2b24;
-}
-[data-theme="park2"] .hero { background: #23704f; color: #f4faf5; padding-block: clamp(3rem, 9vw, 5.5rem) clamp(2.5rem, 7vw, 4rem); margin-bottom: 1.5rem; }
-[data-theme="park2"] h1, [data-theme="park2"] h2 { font-weight: 800; letter-spacing: -.02em; }
-[data-theme="park2"] .links a { border-color: #f2b84b; }
-[data-theme="park2"] .ph { border-radius: 999px 999px 28px 28px; }
-[data-theme="park2"] .intro .ph { order: 2; }
-[data-theme="park2"] .rule { display: none; }
-[data-theme="park2"] details { border-radius: 18px; margin-bottom: .7rem; border: 1px solid #c3d7c9; }
-[data-theme="park2"] details[open] { background: #f7fbf5; border-color: #23704f; }
-[data-theme="park2"] summary { font-weight: 600; padding-inline: 1.2rem; }
-[data-theme="park2"] details > div { padding-inline: 1.2rem; }
-
-/* ============================================================
-   PARK 3: night park. Dark green, centred, stacked layout, and
-   the FAQ dividers are little slacklines (sagging line, two anchors).
-   ============================================================ */
-[data-theme="park3"] {
-  --bg: #14231b; --ink: #e8f1ea; --accent: #8fd0a9; --ph-bg: #22382c; --ph-ink: #8aa896;
-  --display: "Fraunces", Georgia, serif; --body: "Newsreader", Georgia, serif;
-  --measure: 40rem;
-  --d-bg: transparent; --btn-bg: transparent; --btn-ink: #8fd0a9;
-}
-[data-theme="park3"] .intro .wrap { grid-template-columns: 1fr; gap: 1.5rem; }
-[data-theme="park3"] .ph.tall { aspect-ratio: 3 / 2; border-radius: 20px; }
-[data-theme="park3"] .rule {
-  height: 22px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 22' preserveAspectRatio='none'%3E%3Cpath d='M0 4 Q200 20 400 4' fill='none' stroke='%238fd0a9' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-}
-[data-theme="park3"] .rule::before, [data-theme="park3"] .rule::after { content: ""; position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: #8fd0a9; }
-[data-theme="park3"] .rule::before { left: 0; }
-[data-theme="park3"] .rule::after { right: 0; }
-[data-theme="park3"] .links a { border-color: #8fd0a9; }
+.options { position: fixed; inset: auto 0 0 0; z-index: 10; display: grid; gap: .5rem; justify-items: center; padding: .75rem; padding-bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); background: #111; }
+.options div { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
+.options button { font: 600 .8rem system-ui, sans-serif; padding: .45rem .8rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
+.options button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
 
 @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
 </style>
@@ -128,7 +95,7 @@ details > div { padding: 0 1rem 1rem; }
   <section class="intro">
     <div class="wrap">
       <!-- Image slot -->
-      <div class="ph tall">Image slot (4:5)</div>
+      <div class="ph">Image slot (3:2)</div>
       <div>
         <h2>Section heading</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent libero. Sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet.</p>
@@ -181,25 +148,87 @@ details > div { padding: 0 1rem 1rem; }
   </section>
 </main>
 
-<!-- DESIGN SWITCHER: remove this nav and the script below once you have chosen -->
-<nav class="switcher" aria-label="Design options">
-  <button type="button" data-pick="park1">Park 1</button>
-  <button type="button" data-pick="park2">Park 2</button>
-  <button type="button" data-pick="park3">Park 3</button>
+<!-- OPTIONS: remove this nav once you have chosen -->
+<nav class="options" aria-label="Design options">
+  <div>
+    <button type="button" data-colour-pick="light">Light</button>
+    <button type="button" data-colour-pick="dark">Dark</button>
+  </div>
+  <div>
+    <button type="button" data-divider-pick="wave">Wave</button>
+    <button type="button" data-divider-pick="pair">Pair</button>
+    <button type="button" data-divider-pick="weave">Weave</button>
+    <button type="button" data-divider-pick="fade">Fade</button>
+    <button type="button" data-divider-pick="dots">Dots</button>
+    <button type="button" data-divider-pick="slack">Slack</button>
+  </div>
 </nav>
+
 <script>
+/* ---------- DIVIDERS ----------
+   Each divider is a list of paths. sine(cycles, amplitude, sign, tapered):
+   cycles = number of wavelengths across the page width, amplitude in px,
+   sign = 1 or -1 (the "negative" of a wave), tapered = fade to flat at the ends. */
+var W = 400, H = 28, MID = 14, NS = 'http://www.w3.org/2000/svg';
+function sine(cycles, amp, sign, tapered) {
+  var n = cycles * 40, d = [];
+  for (var i = 0; i <= n; i++) {
+    var x = i / n;
+    var env = tapered ? Math.sin(Math.PI * x) : 1;
+    var y = MID - sign * amp * env * Math.sin(2 * Math.PI * cycles * x);
+    d.push((i ? 'L' : 'M') + (x * W).toFixed(1) + ' ' + y.toFixed(2));
+  }
+  return d.join(' ');
+}
+var DIVIDERS = {
+  wave:  [{ d: sine(4, 8, 1), w: 3 }],
+  pair:  [{ d: sine(4, 7, 1), w: 2.5 }, { d: sine(4, 7, -1), w: 2.5 }],
+  weave: [{ d: sine(4, 8, 1), w: 2 }, { d: sine(4, 8, -1), w: 2 },
+          { d: sine(2, 5, 1), w: 2 }, { d: sine(2, 5, -1), w: 2 }],
+  fade:  [{ d: sine(4, 11, 1, true), w: 3 }],
+  dots:  [{ d: sine(4, 8, 1), w: 5, dash: '0 9' }],
+  slack: [{ d: 'M0 4 Q200 40 400 4', w: 3 }]
+};
+function drawDividers(name) {
+  var rules = document.querySelectorAll('.rule');
+  for (var i = 0; i < rules.length; i++) {
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    DIVIDERS[name].forEach(function (p) {
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', p.d);
+      path.setAttribute('stroke-width', p.w);
+      if (p.dash) path.setAttribute('stroke-dasharray', p.dash);
+      svg.appendChild(path);
+    });
+    rules[i].textContent = '';
+    rules[i].appendChild(svg);
+  }
+}
+
+/* ---------- OPTIONS (remove along with the nav) ---------- */
 (function () {
   var root = document.documentElement;
-  var buttons = document.querySelectorAll('[data-pick]');
-  var names = ['park1', 'park2', 'park3'];
-  function pick(name) {
-    root.setAttribute('data-theme', name);
-    buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.pick === name); });
-    try { history.replaceState(null, '', '#' + name); } catch (e) {}
+  var colours = ['light', 'dark'], dividers = Object.keys(DIVIDERS);
+  function apply(colour, divider) {
+    root.setAttribute('data-colour', colour);
+    root.setAttribute('data-divider', divider);
+    drawDividers(divider);
+    document.querySelectorAll('[data-colour-pick]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.colourPick === colour); });
+    document.querySelectorAll('[data-divider-pick]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.dividerPick === divider); });
+    try { history.replaceState(null, '', '#' + colour + '-' + divider); } catch (e) {}
   }
-  buttons.forEach(function (b) { b.addEventListener('click', function () { pick(b.dataset.pick); }); });
-  var start = location.hash.replace('#', '');
-  pick(names.indexOf(start) > -1 ? start : 'park1');
+  var parts = location.hash.replace('#', '').split('-');
+  var colour = colours.indexOf(parts[0]) > -1 ? parts[0] : 'dark';
+  var divider = dividers.indexOf(parts[1]) > -1 ? parts[1] : 'wave';
+  document.querySelectorAll('[data-colour-pick]').forEach(function (b) {
+    b.addEventListener('click', function () { colour = b.dataset.colourPick; apply(colour, divider); });
+  });
+  document.querySelectorAll('[data-divider-pick]').forEach(function (b) {
+    b.addEventListener('click', function () { divider = b.dataset.dividerPick; apply(colour, divider); });
+  });
+  apply(colour, divider);
 })();
 </script>
 </body>
