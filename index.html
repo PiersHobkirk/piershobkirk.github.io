@@ -39,6 +39,14 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
 .ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
 img { max-width: 100%; display: block; }
 
+/* The main image. If it is an animated GIF: click it anywhere, or use the corner button, to pause and play */
+.media { position: relative; cursor: pointer; border-radius: 20px; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.media img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.media.still { cursor: default; }
+.media .ph { background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .16) 50%, transparent 70%); background-size: 250% 100%; animation: sheen 3.2s linear infinite; }
+@keyframes sheen { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.pause { position: absolute; right: .6rem; bottom: .6rem; width: 2.4rem; height: 2.4rem; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); color: var(--accent); cursor: pointer; opacity: .9; }
+
 .hero { padding-block: clamp(3rem, 9vw, 5.5rem) .25rem; }
 .hero h1 { font-size: clamp(2.3rem, 9vw, 3.8rem); margin-bottom: .8rem; }
 .lede { font-size: 1.2rem; max-width: 32rem; margin: 0 auto; }
@@ -54,6 +62,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 /* Side padding keeps the heading clear of the figure standing at the right-hand end of its divider */
 .faq .q { display: block; padding: 1.1rem 3.5rem 0; font-size: 1.45rem; line-height: 1.3; }
 .faq .a { padding: .5rem 1rem 0; }
+/* extra room above the heading that carries the "click me!" bubble */
+.faq details.has-bubble .q { padding-top: 2.7rem; }
 
 .links { padding-block: 2rem 3rem; }
 .links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
@@ -67,9 +77,12 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .faq .rule { display: block; position: relative; }
 .rule svg { display: block; overflow: visible; }
 .rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
-  .rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .rule .fh { fill: var(--ink); stroke: none; }
-  .rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
+.rule .bub  { fill: var(--bg); stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .bub2 { fill: none; stroke: var(--accent); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.rule .bubtext { fill: var(--ink); font-weight: 700; font-size: 14.5px; text-anchor: middle; }
+.rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .fh { fill: var(--ink); stroke: none; }
+.rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
 
 /* ============================================================
    LIGHT / DARK BUTTON
@@ -89,8 +102,20 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 <main>
   <section class="intro">
     <div class="wrap">
-      <!-- Image slot -->
-      <div class="ph">Image slot (3:2)</div>
+      <!-- Main image slot. Delete the .ph placeholder and use ONE of these:
+
+           A) An animated GIF that can be paused (click it, or use the corner button). While paused it shows a still,
+              either the file in data-still, or (if you leave data-still out) the GIF's first frame, grabbed automatically:
+              <img src="images/clip.gif" data-still="images/clip-still.jpg" alt="Describe the clip">
+
+           B) A normal still image. No pause button appears:
+              <img src="images/photo.jpg" alt="Describe the photo">
+
+           Keep the still the same shape as the GIF, since the page shows both in the same 3:2 frame. -->
+      <div class="media" id="media">
+        <div class="ph">Image slot (3:2)</div>
+        <button type="button" class="pause" id="pause" aria-label="Pause animation"></button>
+      </div>
       <div>
         <h2>Section heading</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent libero. Sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet.</p>
@@ -107,7 +132,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
         <summary><span class="q">Lorem ipsum dolor sit amet?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p></div>
       </details>
-      <details>
+      <details class="has-bubble">
         <summary><span class="q">Ut enim ad minim veniam?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p></div>
       </details>
@@ -380,11 +405,22 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   function stopAnim(fig) {
     if (fig.timer) { clearTimeout(fig.timer); fig.timer = 0; }
   }
+  // Mirrored copies of the shared frames, made on demand
+  var MIRRORED = {};
+  function mirrorPose(name) {
+    if (!MIRRORED[name]) {
+      var P = POSES[name], o = {};
+      Object.keys(P).forEach(function (k) { o[k] = [-P[k][0], P[k][1]]; });
+      MIRRORED[name] = o;
+    }
+    return MIRRORED[name];
+  }
   function play(fig, frames) {
     var i = 0;
+    var flip = Math.random() < 1 / 3;   // one time in three the whole fall or climb is mirrored (the start and end poses stay as they are)
     (function next() {
       var fr = frames[i++];
-      if (fr.p) draw(fig, poseFor(fig, fr.p));
+      if (fr.p) draw(fig, flip && fr.p !== 'stand' && fr.p !== 'hang' ? mirrorPose(fr.p) : poseFor(fig, fr.p));
       jitter(fig.geo, fr.j === undefined ? 1 : fr.j);
       fig.timer = i < frames.length ? setTimeout(next, fr.ms) : 0;
     })();
@@ -395,6 +431,51 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     stopAnim(fig);
     if (!animate || reduce) { fig.geo.jit = null; renderLine(fig.geo); draw(fig, poseFor(fig, hung ? 'hang' : 'stand')); return; }
     play(fig, hung ? FALL : CLIMB);
+  }
+
+  /* ---------- The hand-drawn "click me!" bubble (on the second divider, until its section is opened) ---------- */
+  var BUBBLE_ON = 1, BUBBLE_W = 100, BUBBLE_H = 30;
+  function seeded(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  // A wobbly rounded box with a tail; every point is nudged a little so it looks drawn, not generated
+  function bubblePath(x, y, w, h, tipX, tipY, rnd, dx, dy) {
+    var r = 11, pts = [];
+    function arc(cx, cy, a0, a1) {
+      for (var i = 0; i <= 2; i++) { var a = (a0 + (a1 - a0) * i / 2) * Math.PI / 180; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    }
+    pts.push([x + r + 2, y], [x + w * 0.5, y]);
+    arc(x + w - r, y + r, -90, 0);
+    pts.push([x + w, y + h / 2]);
+    arc(x + w - r, y + h - r, 0, 90);
+    pts.push([tipX - 2, y + h]);
+    var tail = pts.length;
+    pts.push([tipX, tipY], [tipX, tipY], [tipX - 14, y + h]);
+    arc(x + r, y + h - r, 90, 180);
+    pts.push([x, y + h / 2]);
+    arc(x + r, y + r, 180, 270);
+    pts.push([x + r + 10, y - 0.8]);             // overshoot, like a pen that doesn't quite meet where it started
+    pts = pts.map(function (p, i) {
+      var tip = i === tail || i === tail + 1;
+      return [p[0] + dx + (tip ? 0 : (rnd() * 2 - 1) * 1.0), p[1] + dy + (tip ? 0 : (rnd() * 2 - 1) * 1.0)];
+    });
+    var d = 'M' + pt(pts[0]);
+    for (var i = 0; i < pts.length - 1; i++) {   // smooth curve through the points
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += ' C' + pt([p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]) +
+           ' ' + pt([p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]) + ' ' + pt(p2);
+    }
+    return d;
+  }
+  function drawBubble(svg, W, barY, figX, fig) {
+    var P = STANDS[fig.v], r = HEAD_R * SCALE * (fig.solid ? 1.12 : 1);
+    var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
+    var bottom = tipY - 8, top = bottom - BUBBLE_H, left = W - BUBBLE_W - 2;
+    var g = el('g', { 'pointer-events': 'none' }, svg);
+    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(11), 0, 0) }, g);
+    el('path', { class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(29), 0.9, 0.7) }, g);
+    var t = el('text', { class: 'bubtext', x: left + BUBBLE_W / 2, y: top + BUBBLE_H / 2 + 5,
+                         transform: 'rotate(-2 ' + (left + BUBBLE_W / 2) + ' ' + (top + BUBBLE_H / 2) + ')' }, g);
+    t.textContent = 'click me!';
+    return g;
   }
 
   /* ---------- Build one divider (they sit under each heading, inside its <summary>) ---------- */
@@ -409,6 +490,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     rule.style.marginTop = (BAR_GAP - barY) + 'px';   // pulls the bar up so it sits just under the heading text
     rule.textContent = '';
     var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H }, rule);
+    // a mirrored divider is the whole drawing flipped left to right: figure on the left, loops, poses and falls all reversed
+    var art = el('g', rule._mirror ? { transform: 'translate(' + W + ' 0) scale(-1 1)' } : {}, svg);
 
     // Nodes sit evenly along the whole bar. The last span is split at the figure's node.
     var n = cfg.loops, x0 = LINE / 2, x1 = W - LINE / 2, nodes = [];
@@ -420,11 +503,11 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     spans.push([nodes[n - 1], figX, dLast], [figX, nodes[n], dLast]);
 
     var geo = { barY: barY, x0: x0, x1: x1, figX: figX, spans: spans, loops: [], jit: null, fig: null };
-    spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, svg)); });
-    geo.bar = el('path', { class: 'bar', 'stroke-width': LINE }, svg);
+    spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, art)); });
+    geo.bar = el('path', { class: 'bar', 'stroke-width': LINE }, art);
 
     // the figure, standing on (or hanging from) the extra node
-    var g = geo.fig = el('g', {}, svg);
+    var g = geo.fig = el('g', {}, art);
     var parts = {};
     parts.torso = el('path', { class: 'fl' }, g);
     parts.armA = el('path', { class: 'fl' }, g);
@@ -435,17 +518,27 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     var fig = { parts: parts, geo: geo, timer: 0, target: null, solid: rule._solid, v: rules.indexOf(rule) % STANDS.length };
     rule._fig = fig;
     setHung(fig, !!details.open, false);
+    rule._bubble = null;
+    if (rules.indexOf(rule) === BUBBLE_ON && !rule._bubbleGone && !details.open) rule._bubble = drawBubble(svg, W, barY, figX, fig);
   }
 
   var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
   // each figure randomly gets a solid or an outline head (chosen once per page load)
-  rules.forEach(function (r) { r._solid = Math.random() < 0.5; });
+  // and one divider in three (never the second, which carries the bubble) is mirrored, figure on the left
+  rules.forEach(function (r, i) { r._solid = Math.random() < 0.5; r._mirror = i !== BUBBLE_ON && Math.random() < 1 / 3; });
   function renderAll() { rules.forEach(build); }
 
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
   rules.forEach(function (rule) {
     var d = rule.closest('details');
-    d.addEventListener('toggle', function () { if (rule._fig) setHung(rule._fig, d.open, true); });
+    d.addEventListener('toggle', function () {
+      if (d.open && rule._bubble) {   // the bubble has done its job once its section is opened
+        rule._bubbleGone = true;
+        if (rule._bubble.parentNode) rule._bubble.parentNode.removeChild(rule._bubble);
+        rule._bubble = null;
+      }
+      if (rule._fig) setHung(rule._fig, d.open, true);
+    });
   });
 
   var lastW = 0;
@@ -471,6 +564,50 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   });
   setMode('dark');
   checkWidth();
+
+  /* ==========================================================
+     MAIN IMAGE: an animated GIF pauses to a still (click it anywhere, or the corner
+     button). A normal still image needs no button. The placeholder shimmers so you can try it.
+     ========================================================== */
+  var media = document.getElementById('media'), pauseBtn = document.getElementById('pause');
+  var img = media.querySelector('img'), ph = media.querySelector('.ph');
+  var gifSrc = img ? img.getAttribute('src') : '';
+  var still = img ? img.getAttribute('data-still') : null;
+  var canPause = !img || /\.gif($|[?#])/i.test(gifSrc);   // the placeholder and GIFs can pause; a plain still image can't
+  var playing = !reduce;   // people who ask for less motion get it paused to begin with
+  var ICON_PAUSE = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.6" height="12" rx="1.3" fill="currentColor"/><rect x="8.4" y="1" width="3.6" height="12" rx="1.3" fill="currentColor"/></svg>';
+  var ICON_PLAY = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 2 L11.5 7 L3.5 12 Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  function disablePause() { canPause = false; pauseBtn.hidden = true; media.classList.add('still'); }
+  function renderClip() {
+    if (ph) ph.style.animationPlayState = playing ? 'running' : 'paused';
+    if (img && canPause) {
+      var want = playing ? gifSrc : still;
+      if (want && img.getAttribute('src') !== want) img.setAttribute('src', want);   // going back to the GIF restarts it
+    }
+    pauseBtn.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    pauseBtn.setAttribute('aria-label', playing ? 'Pause animation' : 'Play animation');
+  }
+  // No still supplied: use the GIF's first frame, grabbed once it has loaded
+  function grabFirstFrame() {
+    try {
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img, 0, 0);
+      still = c.toDataURL('image/png');
+      renderClip();
+    } catch (e) { disablePause(); }   // couldn't grab one (e.g. opened as a local file), so show no pause button
+  }
+
+  if (!canPause) {
+    disablePause();
+  } else {
+    if (img && !still) {
+      if (img.complete && img.naturalWidth) grabFirstFrame(); else img.addEventListener('load', grabFirstFrame, { once: true });
+    }
+    media.addEventListener('click', function () { if (canPause && (!img || still)) { playing = !playing; renderClip(); } });   // the button's click bubbles up to here too
+    renderClip();
+  }
 })();
 </script>
 </body>
