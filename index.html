@@ -26,7 +26,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; padding-bottom: 9rem; background: var(--bg); color: var(--ink);
+  margin: 0; background: var(--bg); color: var(--ink);
   font-family: "Averia Serif Libre", Georgia, serif; font-size: 1.1rem; line-height: 1.7; text-align: center;
 }
 .wrap { width: min(100% - 2.5rem, 40rem); margin-inline: auto; }
@@ -71,19 +71,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .rule .fh { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
 
 /* ============================================================
-   OPTIONS PANEL: delete this block, the <details class="options">
-   and the OPTIONS part of the script once you have chosen
+   LIGHT / DARK BUTTON
    ============================================================ */
-.options { position: fixed; inset: auto 0 0 0; z-index: 10; background: #111; color: #fff; font: 600 .8rem/1.3 system-ui, sans-serif; padding-bottom: env(safe-area-inset-bottom, 0px); }
-.options summary { cursor: pointer; padding: .65rem 1rem; list-style: none; text-align: center; }
-.options summary::-webkit-details-marker { display: none; }
-.opt-body { max-height: 40vh; overflow: auto; padding: .1rem .75rem .8rem; display: grid; gap: .6rem; }
-.opt-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .4rem; }
-.opt-row > span { color: #aaa; width: 4rem; text-align: right; }
-.options button { font: inherit; padding: .45rem .8rem; border-radius: 999px; border: 2px solid #555; background: #222; color: #fff; cursor: pointer; }
-.options button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
-.options input[type="range"] { width: 9rem; }
-.options output { width: 2.6rem; text-align: left; }
+.mode { position: fixed; top: max(.75rem, env(safe-area-inset-top, 0px)); right: .75rem; z-index: 10; font: inherit; font-size: .9rem; line-height: 1; padding: .5rem .95rem; border-radius: 999px; border: 2px solid var(--accent); background: var(--bg); color: var(--accent); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -147,32 +137,16 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   </section>
 </main>
 
-<!-- OPTIONS PANEL: remove once you have chosen (keep the colour you want in <html data-colour="...">) -->
-<details class="options" open>
-  <summary>Design options (tap to hide or show)</summary>
-  <div class="opt-body">
-    <div class="opt-row"><span>Colour</span>
-      <button type="button" data-colour="light">Light</button>
-      <button type="button" data-colour="dark">Dark</button>
-    </div>
-    <div class="opt-row"><span>Loops</span>
-      <input type="range" id="loops" min="2" max="14" step="1" aria-label="Number of loops"><output id="loops-out"></output>
-    </div>
-    <div class="opt-row"><span>Depth</span>
-      <input type="range" id="depth" min="8" max="60" step="1" aria-label="Loop depth in pixels"><output id="depth-out"></output>
-    </div>
-  </div>
-</details>
+<button type="button" class="mode" id="mode" aria-label="Switch to light mode">Light</button>
 
 <script>
 (function () {
   'use strict';
 
   /* ==========================================================
-     SETTINGS (the sliders change loops and depth live for testing)
+     SETTINGS
      ========================================================== */
   var cfg = {
-    colour: 'dark',   // 'dark' or 'light'
     loops: 7,         // number of regular loop spans along the bar (the span the figure stands on is split in two)
     depth: 28         // how far the deepest loop hangs below the bar, in px
   };
@@ -180,6 +154,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   var SPLIT_DEPTH = 0.6;  // the two short loops either side of the figure's node are this much as deep
   var SCALE = 1.15;       // figure size multiplier
   var BAR_GAP = 8;        // distance from the bottom of the heading text to the centre of the bar, in px
+  var JOINT_R = 3;        // how much the elbows, hips and knees are rounded, in px
   var JITTER = { depth: 0.15, skew: 0.06 };  // loop shake: depth change (fraction) and sideways skew (fraction of span)
 
   var NS = 'http://www.w3.org/2000/svg';
@@ -213,7 +188,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     return pts.join(' ');
   }
   // "Swell": loops are deepest in the middle of the bar and shallower towards the ends
-  function depthFactor(i, n) { return 0.55 + 0.45 * Math.sin(Math.PI * (i + 0.5) / n); }
+  function depthFactor(i, n) { return 0.45 + 0.55 * Math.sin(Math.PI * (i + 0.5) / n); }
 
   /* ---------- The stick figure ----------
      Base limb lengths (px, before SCALE): torso 10, neck 2.6, head radius 3.4,
@@ -292,18 +267,21 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                      legA: { fk: [18, 4] }, legB: { fk: [32, 12] } }),
     caughtR: solve({ pin: [0, 0], a: -14, head: -40, armA: { fk: [160, 235] }, armB: { fk: [25, 10] },
                      legA: { fk: [-18, -5] }, legB: { fk: [-8, 6] } }),
-    // hanging by one straight arm, head tucked beside it
-    hang:    solve({ pin: [0, 0], a: -20, head: -40, headOff: [-2.8, 0], armA: { fk: [180, 180] }, armB: { fk: [-12, -14] },
+    // hanging by one hand on the node, arm only slightly bent, head tucked beside it
+    hang:    solve({ pin: [0, 0], a: 0, head: -40, armA: { fk: [155, 205] }, armB: { fk: [-12, -14] },
                      legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } }),
-    // climbing back up: swing a leg, hook it over the line, pull up, get on, stand
+    // climbing back up: swing a leg up and out, hook it over the line far from the hands,
+    // lift the body horizontal, roll it over the line with the free leg hanging below, then stand
     c1:      solve({ hip: [0, 24], a: 0,       armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
-                     legA: { ik: [-12, 9], bend: 1 }, legB: { fk: [6, -2] } }),
-    c2:      solve({ hip: [2, 14], a: -6,      armA: { ik: [-3, 0], bend: -1 }, armB: { ik: [3, 0], bend: 1 },
-                     legA: { ik: [-11, -5], bend: 1 }, legB: { fk: [10, 0] } }),
-    c3:      solve({ hip: [-3, 6], a: -35,     armA: { ik: [-12, 0], bend: 1 }, armB: { ik: [-6, 0], bend: 1 },
-                     legA: { ik: [-10, -3.5], bend: 1 }, legB: { fk: [22, 8] } }),
-    c4:      solve({ hip: [-4, -10], a: -25,   armA: { fk: [-100, -125] }, armB: { fk: [100, 115] },
-                     legA: { ik: [-7, FOOT_Y], bend: 1 }, legB: { ik: [4, FOOT_Y], bend: 1 } })
+                     legA: { ik: [-16, 6], bend: 1 }, legB: { fk: [6, -2] } }),
+    c2:      solve({ hip: [-4, 14], a: 25,     armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
+                     legA: { ik: [-18, -3.5], bend: 1 }, legB: { fk: [8, 2] } }),
+    c3:      solve({ hip: [-9, 4], a: 80,      armA: { ik: [-2, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
+                     legA: { ik: [-18, -3.5], bend: 1 }, legB: { fk: [14, 6] } }),
+    c4:      solve({ hip: [-8, -7], a: 85,     armA: { ik: [0, 0], bend: -1 }, armB: { ik: [4, 0], bend: 1 },
+                     legA: { ik: [-17, -2.5], bend: -1 }, legB: { fk: [5, 3] } }),
+    c5:      solve({ hip: [-3, -11], a: -12,   armA: { fk: [-100, -125] }, armB: { fk: [100, 115] },
+                     legA: { ik: [-6, FOOT_Y], bend: 1 }, legB: { ik: [4, FOOT_Y], bend: 1 } })
   };
 
   /* Static frames, no smoothing between them. p = which picture, ms = how long it is held,
@@ -313,7 +291,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   var FALL = [{ p: 'tip', ms: 140 }, { p: 'fr1', ms: 130 }, { p: 'fr2', ms: 120 }, { p: 'fr3', ms: 120 }, { p: 'fr4', ms: 140 },
               { p: 'caughtL', ms: 250 }, { p: 'caughtR', ms: 250 }, { p: 'hang', ms: 140 }].concat(SETTLE);
   var CLIMB = [{ p: 'c1', ms: 180 }, { p: 'c2', ms: 200 }, { p: 'c3', ms: 220 }, { p: 'c4', ms: 220 },
-               { p: 'stand', ms: 140 }].concat(SETTLE);
+               { p: 'c5', ms: 200 }, { p: 'stand', ms: 140 }].concat(SETTLE);
 
   // Room needed above and below the bar, measured from the poses themselves
   var EXT_UP = 0, EXT_DOWN = 0;
@@ -327,13 +305,26 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   var TOP_FIG = Math.ceil(EXT_UP + 3), BELOW_FIG = Math.ceil(EXT_DOWN + 4);
 
   function pt(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+  // A polyline whose corners (elbows, hips, knees) are softened with a small curve of radius r
+  function rounded(pts, r) {
+    var d = 'M' + pt(pts[0]);
+    for (var i = 1; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+      var l1 = Math.hypot(p0[0] - p1[0], p0[1] - p1[1]) || 1, l2 = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) || 1;
+      var c = Math.min(r, l1 * 0.45, l2 * 0.45);
+      d += ' L' + pt([p1[0] + (p0[0] - p1[0]) * c / l1, p1[1] + (p0[1] - p1[1]) * c / l1]) +
+           ' Q' + pt(p1) + ' ' + pt([p1[0] + (p2[0] - p1[0]) * c / l2, p1[1] + (p2[1] - p1[1]) * c / l2]);
+    }
+    return d + ' L' + pt(pts[pts.length - 1]);
+  }
   function draw(fig, P) {
-    var f = fig.parts;
+    var f = fig.parts, r = JOINT_R;
     f.torso.setAttribute('d', 'M' + pt(P.hip) + ' L' + pt(P.nk));
-    f.armA.setAttribute('d', 'M' + pt(P.sh) + ' L' + pt(P.eA) + ' L' + pt(P.hA));
-    f.armB.setAttribute('d', 'M' + pt(P.sh) + ' L' + pt(P.eB) + ' L' + pt(P.hB));
-    f.legA.setAttribute('d', 'M' + pt(P.hip) + ' L' + pt(P.kA) + ' L' + pt(P.fA));
-    f.legB.setAttribute('d', 'M' + pt(P.hip) + ' L' + pt(P.kB) + ' L' + pt(P.fB));
+    f.armA.setAttribute('d', rounded([P.sh, P.eA, P.hA], r));
+    f.armB.setAttribute('d', rounded([P.sh, P.eB, P.hB], r));
+    // each leg is drawn up the torso too, so the hip is a soft bend rather than a sharp corner
+    f.legA.setAttribute('d', rounded([P.nk, P.hip, P.kA, P.fA], r));
+    f.legB.setAttribute('d', rounded([P.nk, P.hip, P.kB, P.fB], r));
     f.head.setAttribute('cx', P.hd[0].toFixed(1));
     f.head.setAttribute('cy', P.hd[1].toFixed(1));
     f.head.setAttribute('r', (HEAD_R * SCALE).toFixed(2));
@@ -434,32 +425,19 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   else window.addEventListener('resize', checkWidth);
 
   /* ==========================================================
-     OPTIONS PANEL (remove along with the <details class="options">)
+     LIGHT / DARK BUTTON
      ========================================================== */
-  var root = document.documentElement;
-  var loopsIn = document.getElementById('loops'), depthIn = document.getElementById('depth');
-  function clamp(v, lo, hi, dflt) { v = parseInt(v, 10); return isNaN(v) ? dflt : Math.max(lo, Math.min(hi, v)); }
-
-  var q = new URLSearchParams(location.hash.replace('#', ''));
-  if (q.get('colour') === 'light' || q.get('colour') === 'dark') cfg.colour = q.get('colour');
-  cfg.loops = clamp(q.get('loops'), 2, 14, cfg.loops);
-  cfg.depth = clamp(q.get('depth'), 8, 60, cfg.depth);
-
-  function sync() {
-    root.setAttribute('data-colour', cfg.colour);
-    loopsIn.value = cfg.loops; depthIn.value = cfg.depth;
-    document.getElementById('loops-out').textContent = cfg.loops;
-    document.getElementById('depth-out').textContent = cfg.depth + 'px';
-    document.querySelectorAll('button[data-colour]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.colour === cfg.colour); });
-    try { history.replaceState(null, '', '#' + new URLSearchParams(cfg).toString()); } catch (e) {}
+  var root = document.documentElement, modeBtn = document.getElementById('mode');
+  function setMode(m) {
+    root.setAttribute('data-colour', m);
+    var other = m === 'dark' ? 'light' : 'dark';
+    modeBtn.textContent = other === 'light' ? 'Light' : 'Dark';
+    modeBtn.setAttribute('aria-label', 'Switch to ' + other + ' mode');
   }
-  document.querySelectorAll('button[data-colour]').forEach(function (b) {
-    b.addEventListener('click', function () { cfg.colour = b.dataset.colour; sync(); });
+  modeBtn.addEventListener('click', function () {
+    setMode(root.getAttribute('data-colour') === 'dark' ? 'light' : 'dark');
   });
-  loopsIn.addEventListener('input', function () { cfg.loops = +loopsIn.value; sync(); renderAll(); });
-  depthIn.addEventListener('input', function () { cfg.depth = +depthIn.value; sync(); renderAll(); });
-
-  sync();
+  setMode('dark');
   checkWidth();
 })();
 </script>
