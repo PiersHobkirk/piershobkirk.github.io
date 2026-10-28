@@ -6,7 +6,7 @@
 <title>Page title</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    COLOURS: two schemes, switched by data-colour on <html>
@@ -59,59 +59,17 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
 .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
 
-  /* ============================================================
-    DIVIDERS: a flat bar with catenary backup loops hanging below it
-    and a stick figure. All drawn by the script at the bottom, so it
-    fits any screen width. Line thickness is LINE in the script.
-    ============================================================ */
-  .faq .rule { display: block; position: relative; }
-  .rule svg { display: block; overflow: visible; }
-  .rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
-  .rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .rule .fh { fill: var(--ink); stroke: none; }
-
-  .speech-bubble-wrap {
-    position: absolute;
-    left: calc(50% + 8rem);
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    z-index: 2;
-  }
-  .speech-bubble {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: .5rem .9rem;
-    border: 3px solid var(--rule);
-    border-radius: 14px;
-    background: transparent;
-    color: var(--ink);
-    font-family: "Patrick Hand", "Comic Sans MS", cursive, sans-serif;
-    font-size: 1.25rem;
-    line-height: 1.1;
-    text-transform: uppercase;
-    white-space: nowrap;
-    max-width: 9rem;
-  }
-  .speech-bubble::before {
-    content: "";
-    position: absolute;
-    left: -10px;
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
-    width: 12px;
-    height: 12px;
-    border-left: 3px solid var(--rule);
-    border-bottom: 3px solid var(--rule);
-    background: var(--bg);
-  }
-  .speech-bubble-text {
-    display: inline-block;
-  }
+/* ============================================================
+   DIVIDERS: a flat bar with catenary backup loops hanging below it
+   and a stick figure. All drawn by the script at the bottom, so it
+   fits any screen width. Line thickness is LINE in the script.
+   ============================================================ */
+.faq .rule { display: block; position: relative; }
+.rule svg { display: block; overflow: visible; }
+.rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
+.rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .fh { fill: var(--ink); stroke: none; }
+.rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
 
 /* ============================================================
    LIGHT / DARK BUTTON
@@ -146,7 +104,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     <div class="wrap">
       <h2>Frequently asked questions</h2>
       <details open>
-        <summary><span class="q">Lorem ipsum dolor sit amet?</span><span class="rule" aria-hidden="true"><div class="speech-bubble-wrap"><span class="speech-bubble"><span class="speech-bubble-text">CLICK ME!</span></span></div></span></summary>
+        <summary><span class="q">Lorem ipsum dolor sit amet?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p></div>
       </details>
       <details>
@@ -335,8 +293,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                      legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } };
   var STANDS = [
     {},                                                                                                   // arms up and out, one high, one low
-    { a: 0, armA: { fk: [-128, -165] }, armB: { fk: [128, 165] },
-      legA: { ik: [-4.5, FOOT_Y], bend: 1 }, legB: { ik: [4.5, FOOT_Y], bend: 1 } },                      // both arms up
+    { armA: { ik: [-3.2, -19], bend: 1 }, armB: { ik: [3, -19], bend: -1 } },                           // both hands in pockets
     { hip: [0, -19], a: -2, armA: { fk: [-98, -108] }, armB: { fk: [98, 108] },
       legA: { ik: [-6.5, FOOT_Y], bend: 1 }, legB: { ik: [6.5, FOOT_Y], bend: 1 } },                      // arms wide, feet apart
     { hip: [0, -19.7], a: -9, armA: { fk: [-85, -72] }, armB: { fk: [122, 152] },
@@ -349,7 +306,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
                     legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } };
   var HANGS = [
     {},                                                                                                   // hanging still
-    { a: -8, armA: { fk: [150, 208] }, armB: { fk: [30, 12] }, legA: { fk: [-18, 6] }, legB: { fk: [4, -8] } },   // swinging left, free arm out
+    { armB: { ik: [3, 24.5], bend: -1 }, legA: { fk: [-12, 4] }, legB: { fk: [8, -3] } },                          // free hand on hip (in a pocket)
     { a: 7, armA: { fk: [158, 202] }, armB: { fk: [105, 140] }, legA: { fk: [-6, 10] }, legB: { fk: [14, -6] } }, // free arm up and away
     { a: -3, armA: { fk: [154, 206] }, armB: { fk: [-28, -34] }, legA: { fk: [-32, -4] }, legB: { fk: [10, -6] } }, // one knee bent
     { a: 5, armA: { fk: [150, 210] }, armB: { fk: [18, 42] }, legA: { fk: [-6, 8] }, legB: { fk: [18, 2] } }        // legs kicked out
@@ -400,7 +357,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     f.legB.setAttribute('d', rounded([P.nk, P.hip, P.kB, P.fB], r));
     f.head.setAttribute('cx', P.hd[0].toFixed(1));
     f.head.setAttribute('cy', P.hd[1].toFixed(1));
-    f.head.setAttribute('r', (HEAD_R * SCALE * 1.12).toFixed(2));   // solid, so a little larger than the outline it replaced
+    f.head.setAttribute('r', (HEAD_R * SCALE * (fig.solid ? 1.12 : 1)).toFixed(2));   // a solid head is a little larger than an outline one
   }
 
   /* ---------- The bar and loops. The bar never moves; only the loops shake ---------- */
@@ -474,13 +431,15 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     parts.armB = el('path', { class: 'fl' }, g);
     parts.legA = el('path', { class: 'fl' }, g);
     parts.legB = el('path', { class: 'fl' }, g);
-    parts.head = el('circle', { class: 'fh' }, g);
-    var fig = { parts: parts, geo: geo, timer: 0, target: null, v: rules.indexOf(rule) % STANDS.length };
+    parts.head = el('circle', { class: rule._solid ? 'fh' : 'fh hollow' }, g);
+    var fig = { parts: parts, geo: geo, timer: 0, target: null, solid: rule._solid, v: rules.indexOf(rule) % STANDS.length };
     rule._fig = fig;
     setHung(fig, !!details.open, false);
   }
 
   var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
+  // each figure randomly gets a solid or an outline head (chosen once per page load)
+  rules.forEach(function (r) { r._solid = Math.random() < 0.5; });
   function renderAll() { rules.forEach(build); }
 
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
