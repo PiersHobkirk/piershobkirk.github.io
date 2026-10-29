@@ -146,7 +146,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
         <summary><span class="q">What about the trees?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>The trees are fine! We use padding to prevent wear; and fully grown trees are way, <i>way</i> stronger than slackline forces.</p></div>
       </details>
-      <details>
+      <details id="faq-join">
         <summary><span class="q">Can I join your group?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Of course! Everyone is welcome. There's a small group of us on the Northern Beaches. There's also a bigger group for all of Sydney.</p>
         <p>Check out these links:</p></div>
@@ -496,14 +496,24 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     // a mirrored divider is the whole drawing flipped left to right: figure on the left, loops, poses and falls all reversed
     var art = el('g', rule._mirror ? { transform: 'translate(' + W + ' 0) scale(-1 1)' } : {}, svg);
 
-    // Nodes sit evenly along the whole bar. The last span is split at the figure's node.
+    // Nodes sit evenly along the whole bar. The figure stands in the middle of one span (the last one, or the one
+    // before it on a "shifted" divider) and that span is split in two at the figure's node.
     var n = cfg.loops, x0 = LINE / 2, x1 = W - LINE / 2, nodes = [];
     for (var i = 0; i <= n; i++) nodes.push(x0 + (x1 - x0) * i / n);
-    var figX = (nodes[n - 1] + nodes[n]) / 2;
+    var figSpan = rule._shift && n >= 3 ? n - 2 : n - 1;
+    var figX = (nodes[figSpan] + nodes[figSpan + 1]) / 2;
     var spans = [];
-    for (var j = 0; j < n - 1; j++) spans.push([nodes[j], nodes[j + 1], cfg.depth * depthFactor(j, n)]);
-    var dLast = cfg.depth * depthFactor(n - 1, n) * SPLIT_DEPTH;
-    spans.push([nodes[n - 1], figX, dLast], [figX, nodes[n], dLast]);
+    for (var j = 0; j < n; j++) {
+      var dj = cfg.depth * depthFactor(j, n);
+      if (j === figSpan) spans.push([nodes[j], figX, dj * SPLIT_DEPTH], [figX, nodes[j + 1], dj * SPLIT_DEPTH]);
+      else spans.push([nodes[j], nodes[j + 1], dj]);
+    }
+    // keep the heading text clear of the figure: on a shifted divider the figure's side of the heading gets more room
+    var headingEl = rule.previousElementSibling;
+    if (headingEl && headingEl.classList.contains('q')) {
+      headingEl.style.paddingLeft = headingEl.style.paddingRight = '';
+      if (rule._shift) headingEl.style[rule._mirror ? 'paddingLeft' : 'paddingRight'] = Math.max(56, Math.round(1.5 * (nodes[1] - nodes[0]) + 22)) + 'px';
+    }
 
     var geo = { barY: barY, x0: x0, x1: x1, figX: figX, spans: spans, loops: [], jit: null, fig: null };
     spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, art)); });
@@ -540,9 +550,23 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   for (var mp = 0; mp < 2 && mp < mirrorChoices.length; mp++) {
     mirroredSet[mirrorChoices[mp]] = true;
   }
+  // On 2 or 3 random dividers (never the second) the figure stands one span further in from the end of the bar.
+  var shiftChoices = [];
+  for (var si = 0; si < rules.length; si++) {
+    if (si === BUBBLE_ON) continue;
+    shiftChoices.push(si);
+  }
+  for (var sk = shiftChoices.length - 1; sk > 0; sk--) {
+    var sj = Math.floor(Math.random() * (sk + 1));
+    var st = shiftChoices[sk]; shiftChoices[sk] = shiftChoices[sj]; shiftChoices[sj] = st;
+  }
+  var shiftedSet = {}, shiftCount = Math.min(shiftChoices.length, 2 + Math.floor(Math.random() * 2));
+  for (var sp = 0; sp < shiftCount; sp++) shiftedSet[shiftChoices[sp]] = true;
+
   rules.forEach(function (r, i) {
     r._solid = Math.random() < 0.5;
     r._mirror = !!mirroredSet[i];
+    r._shift = !!shiftedSet[i];
   });
   function renderAll() { rules.forEach(build); }
 
@@ -582,6 +606,18 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   });
   setMode('dark');
   checkWidth();
+
+  function openFaqFromHash() {
+    var h = location.hash;
+    if (!h) return;
+    var el = document.querySelector(h);
+    if (el && el.tagName === 'DETAILS') {
+      if (!el.open) el.open = true;
+      setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
+    }
+  }
+  window.addEventListener('hashchange', openFaqFromHash);
+  openFaqFromHash();
 
   /* ==========================================================
      MAIN IMAGE: an animated GIF pauses to a still (click it anywhere, or the corner
