@@ -508,12 +508,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       if (j === figSpan) spans.push([nodes[j], figX, dj * SPLIT_DEPTH], [figX, nodes[j + 1], dj * SPLIT_DEPTH]);
       else spans.push([nodes[j], nodes[j + 1], dj]);
     }
-    // keep the heading text clear of the figure: on a shifted divider the figure's side of the heading gets more room
-    var headingEl = rule.previousElementSibling;
-    if (headingEl && headingEl.classList.contains('q')) {
-      headingEl.style.paddingLeft = headingEl.style.paddingRight = '';
-      if (rule._shift) headingEl.style[rule._mirror ? 'paddingLeft' : 'paddingRight'] = Math.max(56, Math.round(1.5 * (nodes[1] - nodes[0]) + 22)) + 'px';
-    }
+    // heading text stays centered; figure position is independent
 
     var geo = { barY: barY, x0: x0, x1: x1, figX: figX, spans: spans, loops: [], jit: null, fig: null };
     spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, art)); });
