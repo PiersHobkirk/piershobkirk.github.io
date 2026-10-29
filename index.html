@@ -35,14 +35,23 @@ p { margin: 0 0 1em; }
 a { color: var(--accent); }
 a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
-/* Image placeholder: replace <div class="ph"> with <img src="images/your-photo.jpg" alt="..."> */
-.ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
-img { max-width: 100%; display: block; }
+  /* 
+     IMAGE PLACEHOLDER STYLES
+     When swapping in a real image: delete .ph elements. 
+     The .media img styles below will apply to your real <img> tags.
+  */
+  .ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
+  img { max-width: 100%; display: block; }
 
-/* The main image. If it is an animated GIF: click it anywhere, or use the corner button, to pause and play */
-.media { position: relative; cursor: pointer; border-radius: 20px; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-.media img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.media.still { cursor: default; }
+  /* 
+     MAIN IMAGE STYLES
+     For GIFs: add data-still="path/to/still.jpg" to enable pause functionality
+     For still images: just <img src="..." alt="..."> - no pause button will appear
+     Aspect ratio fixed at 3:2 to match placeholder
+  */
+  .media { position: relative; cursor: pointer; border-radius: 20px; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+  .media img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+  .media.still { cursor: default; }
 .media .ph { background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .16) 50%, transparent 70%); background-size: 250% 100%; animation: sheen 3.2s linear infinite; }
 @keyframes sheen { from { background-position: 150% 0; } to { background-position: -50% 0; } }
 .pause { position: absolute; right: .6rem; bottom: .6rem; width: 2.4rem; height: 2.4rem; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); color: var(--accent); cursor: pointer; opacity: .9; }
@@ -102,18 +111,34 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 <main>
   <section class="intro">
     <div class="wrap">
-      <!-- Main image slot. Delete the .ph placeholder and use ONE of these:
-
-           A) An animated GIF that can be paused (click it, or use the corner button). While paused it shows a still,
-              either the file in data-still, or (if you leave data-still out) the GIF's first frame, grabbed automatically:
-              <img src="images/clip.gif" data-still="images/clip-still.jpg" alt="Describe the clip">
-
-           B) A normal still image. No pause button appears:
-              <img src="images/photo.jpg" alt="Describe the photo">
-
-           Keep the still the same shape as the GIF, since the page shows both in the same 3:2 frame. -->
+      <!-- 
+        ============================================================
+        MAIN IMAGE SLOT - SWAP IN YOUR REAL ASSET HERE
+        ============================================================
+        
+        OPTION A) Animated GIF (pauseable) - Recommended if you have motion
+          Replace the placeholder with:
+            <img src="images/your-clip.gif" data-still="images/your-clip-still.jpg" alt="Describe your image here">
+          - data-still: A still frame to show when paused. Keep same dimensions/aspect ratio as GIF.
+          - If you omit data-still, the script will automatically grab the first frame of the GIF.
+          - Click the image or the corner button to pause/play.
+        
+        OPTION B) Still image (not pauseable)
+          Replace the placeholder with:
+            <img src="images/your-photo.jpg" alt="Describe your image here">
+          - No pause button will appear. Just swap the src and alt text.
+        
+        IMPORTANT: 
+        - Keep aspect ratio 3:2 (see CSS .media img { aspect-ratio: 3 / 2; })
+        - Place your images in an 'images/' folder next to this HTML file
+        - Update the alt text to be descriptive for accessibility
+        - When swapping in, DELETE the <div class="ph">...</div> line entirely
+        ============================================================
+      -->
       <div class="media" id="media">
+        <!-- PLACEHOLDER - DELETE THIS WHEN SWAPPING IN REAL IMAGE/GIF -->
         <div class="ph">Image slot (3:2)</div>
+        <!-- END PLACEHOLDER -->
         <button type="button" class="pause" id="pause" aria-label="Pause animation"></button>
       </div>
       <div>
@@ -563,7 +588,47 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     r._mirror = !!mirroredSet[i];
     r._shift = !!shiftedSet[i];
   });
-  function renderAll() { rules.forEach(build); }
+
+  function fixHeadingOverlap(rule) {
+    var sum = rule.closest('summary');
+    if (!sum) return;
+    var q = sum.querySelector('.q');
+    if (!q) return;
+    if (q._originalText === undefined) q._originalText = q.textContent;
+    q.textContent = '';
+    var tokens = q._originalText.match(/\S+|\s+/g) || [];
+    var words = [];
+    tokens.forEach(function (token) {
+      if (/^\s+$/.test(token)) {
+        q.appendChild(document.createTextNode(token));
+      } else {
+        var span = document.createElement('span');
+        span.textContent = token;
+        q.appendChild(span);
+        words.push(span);
+      }
+    });
+    var fig = rule._fig && rule._fig.geo && rule._fig.geo.fig;
+    if (!fig) return;
+    var figRect = fig.getBoundingClientRect();
+    if (figRect.width === 0 || figRect.height === 0) return;
+    function overlaps(r) {
+      return r.right > figRect.left - 1 && r.left < figRect.right + 1 &&
+             r.bottom > figRect.top - 1 && r.top < figRect.bottom + 1;
+    }
+    for (var i = 0; i < words.length; i++) {
+      if (overlaps(words[i].getBoundingClientRect())) {
+        var br = document.createElement('br');
+        words[i].parentNode.insertBefore(br, words[i]);
+        break;
+      }
+    }
+  }
+
+  function renderAll() {
+    rules.forEach(build);
+    setTimeout(function () { rules.forEach(fixHeadingOverlap); }, 0);
+  }
 
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
   rules.forEach(function (rule) {
@@ -615,8 +680,11 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   openFaqFromHash();
 
   /* ==========================================================
-     MAIN IMAGE: an animated GIF pauses to a still (click it anywhere, or the corner
-     button). A normal still image needs no button. The placeholder shimmers so you can try it.
+     MAIN IMAGE HANDLER
+     - PLACEHOLDER MODE: .ph is present, no <img> tag. Pause button still shows but is non-functional.
+     - GIF MODE: <img src="*.gif"> or <img src="..." data-still="...">. Click image/button to pause/play.
+       If data-still is omitted, first frame is auto-captured to canvas.
+     - STILL MODE: <img src="*.jpg/png/webp"> (not .gif). Pause button hidden, image not clickable for play/pause.
      ========================================================== */
   var media = document.getElementById('media'), pauseBtn = document.getElementById('pause');
   var img = media.querySelector('img'), ph = media.querySelector('.ph');
