@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" data-colour="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hey Slacker!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   COLOURS: two schemes, switched by data-colour on <html>
+   ============================================================ */
+[data-colour="dark"] {
+  --bg: #14231b; --ink: #e8f1ea; --accent: #8fd0a9; --rule: #8fd0a9;
+  --ph-bg: #22382c; --ph-ink: #8aa896; --btn-bg: #8fd0a9; --btn-ink: #14231b;
+}
+[data-colour="light"] {
+  --bg: #eef4ee; --ink: #1c2b24; --accent: #23704f; --rule: #23704f;
+  --ph-bg: #cfe2d4; --ph-ink: #4d6d5b; --btn-bg: #23704f; --btn-ink: #ffffff;
+}
+
+/* ============================================================
+   LAYOUT: centred, narrow column, stacked
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Averia Serif Libre", Georgia, serif; font-size: 1.1rem; line-height: 1.7; text-align: center;
+}
+.wrap { width: min(100% - 2.5rem, 40rem); margin-inline: auto; }
+h1, h2 { font-weight: 700; margin: 0; line-height: 1.15; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* Image placeholder: replace <div class="ph"> with <img src="images/your-photo.jpg" alt="..."> */
+.ph { display: grid; place-items: center; background: var(--ph-bg); color: var(--ph-ink); font-size: .9rem; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; }
+img { max-width: 100%; display: block; }
+
+/* The main image. If it is an animated GIF: click it anywhere, or use the corner button, to pause and play */
+.media { position: relative; cursor: pointer; border-radius: 20px; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.media img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.media.still { cursor: default; }
+.media .ph { background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .16) 50%, transparent 70%); background-size: 250% 100%; animation: sheen 3.2s linear infinite; }
+@keyframes sheen { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.pause { position: absolute; right: .6rem; bottom: .6rem; width: 2.4rem; height: 2.4rem; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); color: var(--accent); cursor: pointer; opacity: .9; }
+
+.hero { padding-block: clamp(3rem, 9vw, 5.5rem) .25rem; }
+.hero h1 { font-size: clamp(2.3rem, 9vw, 3.8rem); margin-bottom: .8rem; }
+.lede { font-size: 1.2rem; max-width: 32rem; margin: 0 auto; }
+
+.intro { padding-block: 1rem 2rem; }
+.intro .wrap > div { margin-top: 1.5rem; }
+h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
+
+.faq { padding-block: 2rem; }
+.faq h2 { margin-bottom: 0; }
+.faq summary { display: block; cursor: pointer; list-style: none; padding: 0; }
+.faq summary::-webkit-details-marker { display: none; }
+/* Side padding keeps the heading clear of the figure standing at the right-hand end of its divider */
+.faq .q { display: block; padding: 1.1rem 3.5rem 0; font-size: 1.45rem; line-height: 1.3; }
+.faq .a { padding: .5rem 1rem 0; }
+/* extra room above the heading that carries the "click me!" bubble */
+.faq details.has-bubble .q { padding-top: 2.7rem; }
+
+.links { padding-block: 2rem 3rem; }
+.links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+.links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
+
+/* ============================================================
+   DIVIDERS: a flat bar with catenary backup loops hanging below it
+   and a stick figure. All drawn by the script at the bottom, so it
+   fits any screen width. Line thickness is LINE in the script.
+   ============================================================ */
+.faq .rule { display: block; position: relative; }
+.rule svg { display: block; overflow: visible; }
+.rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
+.rule .bub  { fill: var(--bg); stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .bub2 { fill: none; stroke: var(--accent); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.rule .bubtext { fill: var(--ink); font-weight: 700; font-size: 14.5px; text-anchor: middle; }
+.rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rule .fh { fill: var(--ink); stroke: none; }
+.rule .fh.hollow { fill: var(--bg); stroke: var(--ink); stroke-width: 2.2; }
+
+/* ============================================================
+   LIGHT / DARK BUTTON
+   ============================================================ */
+.mode { position: fixed; top: max(.75rem, env(safe-area-inset-top, 0px)); right: .75rem; z-index: 10; font: inherit; font-size: .9rem; line-height: 1; padding: .5rem .95rem; border-radius: 999px; border: 2px solid var(--accent); background: var(--bg); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Hey Slacker!</h1>
+    <p class="lede">Hello! <b>My name is Piers, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="wrap">
+      <!-- Main image slot. Delete the .ph placeholder and use ONE of these:
+
+           A) An animated GIF that can be paused (click it, or use the corner button). While paused it shows a still,
+              either the file in data-still, or (if you leave data-still out) the GIF's first frame, grabbed automatically:
+              <img src="images/clip.gif" data-still="images/clip-still.jpg" alt="Describe the clip">
+
+           B) A normal still image. No pause button appears:
+              <img src="images/photo.jpg" alt="Describe the photo">
+
+           Keep the still the same shape as the GIF, since the page shows both in the same 3:2 frame. -->
+      <div class="media" id="media">
+        <div class="ph">Image slot (3:2)</div>
+        <button type="button" class="pause" id="pause" aria-label="Pause animation"></button>
+      </div>
+      <div>
+        <h2>Umm... <i>What</i>-lining???</h2>
+        <p><b>Slacklining</b> is a sport where we try to balance on a rope. There is an infinite number of ways to do it; long or short, loose or tight, thick or thin, stretchy or static, high or low!</p>
+        <p>I have been slacklining for ~4 years. I love the flow and the super-sharp focus, and the way "impossible" things slowly become effortless. It's great! But fair warning, it can be addictive...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Each heading has its own divider (.rule), drawn by the script. Clicking the heading or the divider opens the section. -->
+  <section class="faq">
+    <div class="wrap">
+      <h2>Frequently asked questions:</h2>
+      <details open>
+        <summary><span class="q">Can I try?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Sure! Actually, it depends...</p>
+          <p>If I’m wearing airpods, I'm trying to focus, so no. Otherwise, please just wait for me to fall off before introducing yourself. I might still say no for safety reasons (small children, drunk people, etc).</p>
+          <p>I recommend getting a beginner slackline kit (they are quite cheap secondhand, and very easy to use). It is best to start with a low, short, tight setup. Put it in a park or backyard, and enjoy!</p></div>
+      </details>
+      <details class="has-bubble">
+        <summary><span class="q">How do you do it?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>It's <s>magic</s> practice. Everything happens subconsciously, so I don't really know how I do it, either. Our brains are capable of incredible things.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">Are you training for something?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Not really. I don't plan to join the circus or anything. I just do this for fun.</p></div>
+      </details>
+      <details>
+        <summary><span class="q">What about the trees?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>The trees are fine! We use padding to prevent wear; and fully grown trees are way, <i>way</i> stronger than slackline forces.</p></div>
+      </details>
+      <details id="faq-join">
+        <summary><span class="q">Can I join your group?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Of course! Everyone is welcome. There's a small group of us on the Northern Beaches. There's also a bigger group for all of Sydney.</p>
+        <p>Check out these links:</p></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="links">
+    <div class="wrap">
+      <h2>Find out more</h2>
+      <ul>
+        <li><a href="#">Link one</a></li>
+        <li><a href="#">Link two</a></li>
+        <li><a href="#">Link three</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<button type="button" class="mode" id="mode" aria-label="Switch to light mode">Light</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ==========================================================
+     SETTINGS
+     ========================================================== */
+  var cfg = {
+    loops: 7,         // number of regular loop spans along the bar (the span the figure stands on is split in two)
+    depth: 28         // how far the deepest loop hangs below the bar, in px
+  };
+  var LINE = 4;           // thickness of the bar AND the loops, in px
+  var SPLIT_DEPTH = 0.6;  // the two short loops either side of the figure's node are this much as deep
+  var SCALE = 1.05;       // figure size multiplier
+  var BAR_GAP = 8;        // distance from the bottom of the heading text to the centre of the bar, in px
+  var JOINT_R = 3;        // how much the elbows, hips and knees are rounded, in px
+  var JITTER = { depth: 0.15, skew: 0.06 };  // loop shake: depth change (fraction) and sideways skew (fraction of span)
+
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  /* ---------- Catenary loops ---------- */
+  // Solve a*(cosh(h/a)-1) = d for the catenary parameter a (h = half span, d = sag)
+  function catenaryA(h, d) {
+    var lo = 0.01, hi = 1e6;
+    for (var i = 0; i < 80; i++) {
+      var mid = (lo + hi) / 2;
+      if (mid * (Math.cosh(h / mid) - 1) - d > 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  // skew pushes the sagging part sideways (fraction of the span); the ends stay on their nodes
+  function loopPath(x0, x1, y0, d, skew) {
+    var h = (x1 - x0) / 2, xm = (x0 + x1) / 2, a = catenaryA(h, d), N = 28, pts = [];
+    for (var i = 0; i <= N; i++) {
+      var u = i / N, x = x0 + (x1 - x0) * u;
+      var y = y0 + d - a * (Math.cosh((x - xm) / a) - 1);
+      pts.push((i ? 'L' : 'M') + (x + skew * (x1 - x0) * Math.sin(Math.PI * u)).toFixed(1) + ' ' + y.toFixed(2));
+    }
+    return pts.join(' ');
+  }
+  // "Swell": loops are deepest in the middle of the bar and shallower towards the ends
+  function depthFactor(i, n) { return 0.45 + 0.55 * Math.sin(Math.PI * (i + 0.5) / n); }
+
+  /* ---------- The stick figure ----------
+     Base limb lengths (px, before SCALE): torso 10, neck 2.6, head radius 3.4,
+     upper arm 8, forearm 8, thigh 10, shin 10.5. Poses are solved from joint
+     angles so limb lengths never change between frames. All numbers below are in
+     base units and are multiplied by SCALE. Coordinates are relative to the
+     figure's node on the bar (x right, y down). */
+  var TORSO = 10, NECK = 2.6, HEAD_R = 3.4, UARM = 8, FARM = 8, THIGH = 10, SHIN = 10.5;
+  var FOOT_Y = -(LINE / 2) / SCALE;   // feet rest on top of the bar
+
+  function rad(d) { return d * Math.PI / 180; }
+  function down(a, len) { return [Math.sin(rad(a)) * len, Math.cos(rad(a)) * len]; }   // 0 = straight down, +90 = right
+  function up(a, len)   { return [Math.sin(rad(a)) * len, -Math.cos(rad(a)) * len]; }  // 0 = straight up,   +90 = right
+  function add(p, q) { return [p[0] + q[0], p[1] + q[1]]; }
+  function sub(p, q) { return [p[0] - q[0], p[1] - q[1]]; }
+  function sc(p) { return [p[0] * SCALE, p[1] * SCALE]; }
+
+  // Two-bone limb from base to target; bend = +1 / -1 picks which side the elbow or knee points
+  function ik(base, target, l1, l2, bend) {
+    var dx = target[0] - base[0], dy = target[1] - base[1];
+    var dist = Math.sqrt(dx * dx + dy * dy) || 0.01, reach = l1 + l2 - 0.01;
+    var ux = dx / dist, uy = dy / dist, d = Math.min(Math.max(dist, 0.5), reach);
+    var a = (l1 * l1 - l2 * l2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+    return [[base[0] + ux * a - bend * uy * h, base[1] + uy * a + bend * ux * h],
+            [base[0] + ux * d, base[1] + uy * d]];
+  }
+  function limb(base, spec, l1, l2, off) {
+    if (spec.ik) return ik(base, sc(spec.ik), l1, l2, spec.bend || 1);
+    var m = add(base, down(spec.fk[0] + off, l1));
+    return [m, add(m, down(spec.fk[1] + off, l2))];
+  }
+  /* def.a      torso lean in degrees (0 = upright, negative = leaning left / rolling anticlockwise)
+     def.hip    hip position, or def.pin = where arm A's hand grips (the body then hangs from it)
+     def.rel    true = fk limb angles are measured relative to the body, so they turn with it
+     def.head   extra head tilt in degrees; def.headOff = [dx, dy] nudge of the head centre
+     arms/legs  { fk: [upper angle, lower angle] } or { ik: [targetX, targetY], bend: 1 | -1 } */
+  function solve(def) {
+    var S = SCALE, T = TORSO * S, hip, sh, off = def.rel ? -def.a : 0;
+    if (def.pin) {
+      var g = def.armA.fk;
+      sh = sub(sc(def.pin), add(down(g[0] + off, UARM * S), down(g[1] + off, FARM * S)));
+      hip = sub(sh, up(def.a, T));
+    } else {
+      hip = sc(def.hip);
+      sh = add(hip, up(def.a, T));
+    }
+    var nk = add(hip, up(def.a, T + NECK * S));
+    var hd = add(nk, up(def.a + (def.head || 0), HEAD_R * S));
+    if (def.headOff) hd = add(hd, sc(def.headOff));
+    var A = limb(sh, def.armA, UARM * S, FARM * S, off), B = limb(sh, def.armB, UARM * S, FARM * S, off);
+    var LA = limb(hip, def.legA, THIGH * S, SHIN * S, off), LB = limb(hip, def.legB, THIGH * S, SHIN * S, off);
+    return { hip: hip, sh: sh, nk: nk, hd: hd, eA: A[0], hA: A[1], eB: B[0], hB: B[1], kA: LA[0], fA: LA[1], kB: LB[0], fB: LB[1] };
+  }
+  // limb sets measured relative to the body, for the roll
+  var LOOSE = { armA: { fk: [-150, -190] }, armB: { fk: [140, 175] }, legA: { fk: [-40, -15] },  legB: { fk: [35, 10] } };
+  var MIX   = { armA: { fk: [-100, -155] }, armB: { fk: [70, 130] },  legA: { fk: [-70, -12] },  legB: { fk: [-50, -10] } };
+  var TUCK  = { armA: { fk: [-55, -120] },  armB: { fk: [-35, -100] }, legA: { fk: [-100, -10] }, legB: { fk: [-115, -20] } };
+  var OPEN  = { armA: { fk: [-120, -165] }, armB: { fk: [120, 160] }, legA: { fk: [-25, -10] },  legB: { fk: [25, 10] } };
+  function body(hip, a, limbs) {
+    return solve({ hip: hip, a: a, rel: true, armA: limbs.armA, armB: limbs.armB, legA: limbs.legA, legB: limbs.legB });
+  }
+
+  // Facing left. Arm A is the front (left) arm, leg A the front (left) leg. Both knees point left.
+  var POSES = {
+    // the fall: a tip, then about three-quarters of an anticlockwise roll, loose to tucked to open
+    tip:     solve({ hip: [-9, -15], a: -48,   armA: { fk: [-75, -100] }, armB: { fk: [160, 185] },
+                     legA: { ik: [-13, 3], bend: 1 }, legB: { ik: [2, FOOT_Y], bend: 1 } }),
+    fr1:     body([-10, -9], -100, LOOSE),
+    fr2:     body([-13, 0], -170, MIX),
+    fr3:     body([-16, 11], -240, TUCK),
+    fr4:     body([-16, 20], -300, OPEN),
+    // caught by one hand on the node
+    caughtL: solve({ pin: [0, 0], a: 30, head: -40, armA: { fk: [120, 200] }, armB: { fk: [-130, -155] },
+                     legA: { fk: [18, 4] }, legB: { fk: [32, 12] } }),
+    caughtR: solve({ pin: [0, 0], a: -14, head: -40, armA: { fk: [160, 235] }, armB: { fk: [25, 10] },
+                     legA: { fk: [-18, -5] }, legB: { fk: [-8, 6] } }),
+    // climbing back up: swing a leg up and out, hook it over the line far from the hands,
+    // lift the body horizontal, roll it over the line with the free leg hanging below, then stand
+    c1:      solve({ hip: [0, 24], a: 0,       armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
+                     legA: { ik: [-16, 6], bend: 1 }, legB: { fk: [6, -2] } }),
+    c2:      solve({ hip: [-4, 14], a: 25,     armA: { ik: [-2.5, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
+                     legA: { ik: [-18, -3.5], bend: 1 }, legB: { fk: [8, 2] } }),
+    c3:      solve({ hip: [-9, 4], a: 80,      armA: { ik: [-2, 0], bend: -1 }, armB: { ik: [2.5, 0], bend: 1 },
+                     legA: { ik: [-18, -3.5], bend: 1 }, legB: { fk: [14, 6] } }),
+    c4:      solve({ hip: [-8, -7], a: 85,     armA: { ik: [0, 0], bend: -1 }, armB: { ik: [4, 0], bend: 1 },
+                     legA: { ik: [-17, -2.5], bend: -1 }, legB: { fk: [5, 3] } }),
+    c5:      solve({ hip: [-3, -11], a: -12,   armA: { fk: [-100, -125] }, armB: { fk: [100, 115] },
+                     legA: { ik: [-6, FOOT_Y], bend: 1 }, legB: { ik: [4, FOOT_Y], bend: 1 } })
+  };
+
+  /* Standing and hanging poses differ from divider to divider. Each divider takes the next entry in these
+     tables (and they repeat if you add more sections). Every entry lists only what it changes from the base
+     pose, so a new variant is a single line. Everything else (fall, climb) is shared. */
+  function variant(base, over) {
+    var o = {}, k;
+    for (k in base) o[k] = base[k];
+    for (k in over) o[k] = over[k];
+    return o;
+  }
+  var STAND_BASE = { hip: [0, -19.5], a: -4, armA: { fk: [-115, -150] }, armB: { fk: [105, 90] },
+                     legA: { ik: [-5, FOOT_Y], bend: 1 }, legB: { ik: [5, FOOT_Y], bend: 1 } };
+  var STANDS = [
+    {},                                                                                                   // arms up and out, one high, one low
+    { armA: { ik: [-3.2, -19], bend: 1 }, armB: { ik: [2, -19], bend: -1 } },                           // both hands in pockets
+    { hip: [0, -19], a: -2, armA: { fk: [-98, -108] }, armB: { fk: [98, 108] },
+      legA: { ik: [-6.5, FOOT_Y], bend: 1 }, legB: { ik: [6.5, FOOT_Y], bend: 1 } },                      // arms wide, feet apart
+    { hip: [0, -19.7], a: -9, armA: { fk: [-85, -72] }, armB: { fk: [122, 152] },
+      legA: { ik: [-3.5, FOOT_Y], bend: 1 }, legB: { ik: [6, FOOT_Y], bend: 1 } },                        // leaning forward, reaching
+    { hip: [0, -18.6], a: 3, armA: { fk: [-152, -178] }, armB: { fk: [70, 105] },
+      legA: { ik: [-5.5, FOOT_Y], bend: 1 }, legB: { ik: [3, FOOT_Y], bend: 1 } }                         // crouched, front arm high
+  ].map(function (o) { return solve(variant(STAND_BASE, o)); });
+
+  var HANG_BASE = { pin: [0, 0], a: 0, head: -40, headOff: [-0.9, 0], armA: { fk: [155, 205] }, armB: { fk: [-12, -14] },
+                    legA: { fk: [-10, 3] }, legB: { fk: [10, -2] } };
+  var HANGS = [
+    {},                                                                                                   // hanging still
+    { armB: { ik: [2, 24.5], bend: -1 }, legA: { fk: [-12, 4] }, legB: { fk: [8, -3] } },                          // free hand on hip (in a pocket)
+    { a: 7, armA: { fk: [158, 202] }, armB: { fk: [105, 140] }, legA: { fk: [-6, 10] }, legB: { fk: [14, -6] } }, // free arm up and away
+    { a: -3, armA: { fk: [154, 206] }, armB: { fk: [-28, -34] }, legA: { fk: [-32, -4] }, legB: { fk: [10, -6] } }, // one knee bent
+    { a: 5, armA: { fk: [150, 210] }, armB: { fk: [18, 42] }, legA: { fk: [-6, 8] }, legB: { fk: [18, 2] } }        // legs kicked out
+  ].map(function (o) { return solve(variant(HANG_BASE, o)); });
+  function poseFor(fig, name) {
+    return name === 'stand' ? STANDS[fig.v] : name === 'hang' ? HANGS[fig.v] : POSES[name];
+  }
+
+  /* Static frames, no smoothing between them. p = which picture, ms = how long it is held,
+     j = how hard the loops shake on that frame (default 1; 0 = still). p: null keeps the
+     figure as it is and only re-shakes the loops (the settling at the end). */
+  var SETTLE = [{ p: null, ms: 120, j: 0.6 }, { p: null, ms: 120, j: 0.3 }, { p: null, ms: 0, j: 0 }];
+  var FALL = [{ p: 'tip', ms: 140 }, { p: 'fr1', ms: 130 }, { p: 'fr2', ms: 120 }, { p: 'fr3', ms: 120 }, { p: 'fr4', ms: 140 },
+              { p: 'caughtL', ms: 250 }, { p: 'caughtR', ms: 250 }, { p: 'hang', ms: 140 }].concat(SETTLE);
+  var CLIMB = [{ p: 'c1', ms: 180 }, { p: 'c2', ms: 200 }, { p: 'c3', ms: 220 }, { p: 'c4', ms: 220 },
+               { p: 'c5', ms: 200 }, { p: 'stand', ms: 140 }].concat(SETTLE);
+
+  // Room needed above and below the bar, measured from the poses themselves
+  var EXT_UP = 0, EXT_DOWN = 0;
+  Object.keys(POSES).map(function (k) { return POSES[k]; }).concat(STANDS, HANGS).forEach(function (P) {
+    ['hip', 'sh', 'nk', 'eA', 'hA', 'eB', 'hB', 'kA', 'fA', 'kB', 'fB'].forEach(function (j) {
+      EXT_UP = Math.max(EXT_UP, -P[j][1]); EXT_DOWN = Math.max(EXT_DOWN, P[j][1]);
+    });
+    EXT_UP = Math.max(EXT_UP, -P.hd[1] + HEAD_R * SCALE); EXT_DOWN = Math.max(EXT_DOWN, P.hd[1] + HEAD_R * SCALE);
+  });
+  var TOP_FIG = Math.ceil(EXT_UP + 3), BELOW_FIG = Math.ceil(EXT_DOWN + 4);
+
+  function pt(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+  // A polyline whose corners (elbows, hips, knees) are softened with a small curve of radius r
+  function rounded(pts, r) {
+    var d = 'M' + pt(pts[0]);
+    for (var i = 1; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+      var l1 = Math.hypot(p0[0] - p1[0], p0[1] - p1[1]) || 1, l2 = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) || 1;
+      var c = Math.min(r, l1 * 0.45, l2 * 0.45);
+      d += ' L' + pt([p1[0] + (p0[0] - p1[0]) * c / l1, p1[1] + (p0[1] - p1[1]) * c / l1]) +
+           ' Q' + pt(p1) + ' ' + pt([p1[0] + (p2[0] - p1[0]) * c / l2, p1[1] + (p2[1] - p1[1]) * c / l2]);
+    }
+    return d + ' L' + pt(pts[pts.length - 1]);
+  }
+  function draw(fig, P) {
+    var f = fig.parts, r = JOINT_R;
+    f.torso.setAttribute('d', 'M' + pt(P.hip) + ' L' + pt(P.nk));
+    f.armA.setAttribute('d', rounded([P.sh, P.eA, P.hA], r));
+    f.armB.setAttribute('d', rounded([P.sh, P.eB, P.hB], r));
+    // each leg is drawn up the torso too, so the hip is a soft bend rather than a sharp corner
+    f.legA.setAttribute('d', rounded([P.nk, P.hip, P.kA, P.fA], r));
+    f.legB.setAttribute('d', rounded([P.nk, P.hip, P.kB, P.fB], r));
+    f.head.setAttribute('cx', P.hd[0].toFixed(1));
+    f.head.setAttribute('cy', P.hd[1].toFixed(1));
+    f.head.setAttribute('r', (HEAD_R * SCALE * (fig.solid ? 1.12 : 1)).toFixed(2));   // a solid head is a little larger than an outline one
+  }
+
+  /* ---------- The bar and loops. The bar never moves; only the loops shake ---------- */
+  function renderLine(geo) {
+    geo.bar.setAttribute('d', 'M' + geo.x0 + ' ' + geo.barY + ' L' + geo.x1 + ' ' + geo.barY);
+    geo.spans.forEach(function (sp, i) {
+      var j = geo.jit && geo.jit[i];
+      geo.loops[i].setAttribute('d', loopPath(sp[0], sp[1], geo.barY, sp[2] * (j ? j.m : 1), j ? j.sk : 0));
+    });
+    if (geo.fig) geo.fig.setAttribute('transform', 'translate(' + geo.figX.toFixed(1) + ' ' + geo.barY + ')');
+  }
+  // One snappy shake: every loop gets its own random change of depth and sideways skew
+  function jitter(geo, amp) {
+    geo.jit = geo.spans.map(function () {
+      var k = amp * (0.3 + 0.7 * Math.random());   // uneven: some loops shake more than others
+      return { m: 1 + (Math.random() * 2 - 1) * JITTER.depth * k, sk: (Math.random() * 2 - 1) * JITTER.skew * k };
+    });
+    renderLine(geo);
+  }
+  function stopAnim(fig) {
+    if (fig.timer) { clearTimeout(fig.timer); fig.timer = 0; }
+  }
+  // Mirrored copies of the shared frames, made on demand
+  var MIRRORED = {};
+  function mirrorPose(name) {
+    if (!MIRRORED[name]) {
+      var P = POSES[name], o = {};
+      Object.keys(P).forEach(function (k) { o[k] = [-P[k][0], P[k][1]]; });
+      MIRRORED[name] = o;
+    }
+    return MIRRORED[name];
+  }
+  function play(fig, frames) {
+    var i = 0;
+    var flip = Math.random() < 1 / 3;   // one time in three the whole fall or climb is mirrored (the start and end poses stay as they are)
+    (function next() {
+      var fr = frames[i++];
+      if (fr.p) draw(fig, flip && fr.p !== 'stand' && fr.p !== 'hang' ? mirrorPose(fr.p) : poseFor(fig, fr.p));
+      jitter(fig.geo, fr.j === undefined ? 1 : fr.j);
+      fig.timer = i < frames.length ? setTimeout(next, fr.ms) : 0;
+    })();
+  }
+  function setHung(fig, hung, animate) {
+    if (fig.target === hung) return;
+    fig.target = hung;
+    stopAnim(fig);
+    if (!animate || reduce) { fig.geo.jit = null; renderLine(fig.geo); draw(fig, poseFor(fig, hung ? 'hang' : 'stand')); return; }
+    play(fig, hung ? FALL : CLIMB);
+  }
+
+  /* ---------- The hand-drawn "click me!" bubble (on the second divider, until its section is opened) ---------- */
+  var BUBBLE_ON = 1, BUBBLE_W = 100, BUBBLE_H = 30;
+  function seeded(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  // A wobbly rounded box with a tail; every point is nudged a little so it looks drawn, not generated
+  function bubblePath(x, y, w, h, tipX, tipY, rnd, dx, dy) {
+    var r = 11, pts = [];
+    function arc(cx, cy, a0, a1) {
+      for (var i = 0; i <= 2; i++) { var a = (a0 + (a1 - a0) * i / 2) * Math.PI / 180; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    }
+    pts.push([x + r + 2, y], [x + w * 0.5, y]);
+    arc(x + w - r, y + r, -90, 0);
+    pts.push([x + w, y + h / 2]);
+    arc(x + w - r, y + h - r, 0, 90);
+    pts.push([tipX - 2, y + h]);
+    var tail = pts.length;
+    pts.push([tipX, tipY], [tipX, tipY], [tipX - 14, y + h]);
+    arc(x + r, y + h - r, 90, 180);
+    pts.push([x, y + h / 2]);
+    arc(x + r, y + r, 180, 270);
+    pts.push([x + r + 10, y - 0.8]);             // overshoot, like a pen that doesn't quite meet where it started
+    pts = pts.map(function (p, i) {
+      var tip = i === tail || i === tail + 1;
+      return [p[0] + dx + (tip ? 0 : (rnd() * 2 - 1) * 1.0), p[1] + dy + (tip ? 0 : (rnd() * 2 - 1) * 1.0)];
+    });
+    var d = 'M' + pt(pts[0]);
+    for (var i = 0; i < pts.length - 1; i++) {   // smooth curve through the points
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += ' C' + pt([p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]) +
+           ' ' + pt([p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]) + ' ' + pt(p2);
+    }
+    return d;
+  }
+  function drawBubble(svg, W, barY, figX, fig) {
+    var P = STANDS[fig.v], r = HEAD_R * SCALE * (fig.solid ? 1.12 : 1);
+    var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
+    var bottom = tipY - 8, top = bottom - BUBBLE_H, left = W - BUBBLE_W - 2;
+    var g = el('g', { 'pointer-events': 'none' }, svg);
+    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(11), 0, 0) }, g);
+    el('path', { class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(29), 0.9, 0.7) }, g);
+    var t = el('text', { class: 'bubtext', x: left + BUBBLE_W / 2, y: top + BUBBLE_H / 2 + 5,
+                         transform: 'rotate(-2 ' + (left + BUBBLE_W / 2) + ' ' + (top + BUBBLE_H / 2) + ')' }, g);
+    t.textContent = 'click me!';
+    return g;
+  }
+
+  /* ---------- Build one divider (they sit under each heading, inside its <summary>) ---------- */
+  function build(rule) {
+    var W = Math.round(rule.getBoundingClientRect().width);
+    if (!W) return;
+    if (rule._fig) stopAnim(rule._fig);
+    var details = rule.closest('details');
+
+    var barY = TOP_FIG, H = barY + Math.max(cfg.depth + 10, BELOW_FIG);
+    rule.style.height = H + 'px';
+    rule.style.marginTop = (BAR_GAP - barY) + 'px';   // pulls the bar up so it sits just under the heading text
+    rule.textContent = '';
+    var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H }, rule);
+    // a mirrored divider is the whole drawing flipped left to right: figure on the left, loops, poses and falls all reversed
+    var art = el('g', rule._mirror ? { transform: 'translate(' + W + ' 0) scale(-1 1)' } : {}, svg);
+
+    // Nodes sit evenly along the whole bar. The figure stands in the middle of one span (the last one, or the one
+    // before it on a "shifted" divider) and that span is split in two at the figure's node.
+    var n = cfg.loops, x0 = LINE / 2, x1 = W - LINE / 2, nodes = [];
+    for (var i = 0; i <= n; i++) nodes.push(x0 + (x1 - x0) * i / n);
+    var figSpan = rule._shift && n >= 3 ? n - 2 : n - 1;
+    var figX = (nodes[figSpan] + nodes[figSpan + 1]) / 2;
+    var spans = [];
+    for (var j = 0; j < n; j++) {
+      var dj = cfg.depth * depthFactor(j, n);
+      if (j === figSpan) spans.push([nodes[j], figX, dj * SPLIT_DEPTH], [figX, nodes[j + 1], dj * SPLIT_DEPTH]);
+      else spans.push([nodes[j], nodes[j + 1], dj]);
+    }
+    // heading text stays centered; figure position is independent
+
+    var geo = { barY: barY, x0: x0, x1: x1, figX: figX, spans: spans, loops: [], jit: null, fig: null };
+    spans.forEach(function () { geo.loops.push(el('path', { class: 'loop', 'stroke-width': LINE }, art)); });
+    geo.bar = el('path', { class: 'bar', 'stroke-width': LINE }, art);
+
+    // the figure, standing on (or hanging from) the extra node
+    var g = geo.fig = el('g', {}, art);
+    var parts = {};
+    parts.torso = el('path', { class: 'fl' }, g);
+    parts.armA = el('path', { class: 'fl' }, g);
+    parts.armB = el('path', { class: 'fl' }, g);
+    parts.legA = el('path', { class: 'fl' }, g);
+    parts.legB = el('path', { class: 'fl' }, g);
+    parts.head = el('circle', { class: rule._solid ? 'fh' : 'fh hollow' }, g);
+    var fig = { parts: parts, geo: geo, timer: 0, target: null, solid: rule._solid, v: rules.indexOf(rule) % STANDS.length };
+    rule._fig = fig;
+    setHung(fig, !!details.open, false);
+    rule._bubble = null;
+    if (rules.indexOf(rule) === BUBBLE_ON && !rule._bubbleGone && !details.open) rule._bubble = drawBubble(svg, W, barY, figX, fig);
+  }
+
+  var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
+  // each figure randomly gets a solid or an outline head (chosen once per page load)
+  var mirrorChoices = [];
+  for (var mi = 0; mi < rules.length; mi++) {
+    if (mi === 1) continue; // divider 2 always unmirrored
+    mirrorChoices.push(mi);
+  }
+  for (var mk = mirrorChoices.length - 1; mk > 0; mk--) {
+    var mj = Math.floor(Math.random() * (mk + 1));
+    var mt = mirrorChoices[mk]; mirrorChoices[mk] = mirrorChoices[mj]; mirrorChoices[mj] = mt;
+  }
+  var mirroredSet = {};
+  for (var mp = 0; mp < 2 && mp < mirrorChoices.length; mp++) {
+    mirroredSet[mirrorChoices[mp]] = true;
+  }
+  // On 2 or 3 random dividers (never the second) the figure stands one span further in from the end of the bar.
+  var shiftChoices = [];
+  for (var si = 0; si < rules.length; si++) {
+    if (si === BUBBLE_ON) continue;
+    shiftChoices.push(si);
+  }
+  for (var sk = shiftChoices.length - 1; sk > 0; sk--) {
+    var sj = Math.floor(Math.random() * (sk + 1));
+    var st = shiftChoices[sk]; shiftChoices[sk] = shiftChoices[sj]; shiftChoices[sj] = st;
+  }
+  var shiftedSet = {}, shiftCount = Math.min(shiftChoices.length, 2 + Math.floor(Math.random() * 2));
+  for (var sp = 0; sp < shiftCount; sp++) shiftedSet[shiftChoices[sp]] = true;
+
+  rules.forEach(function (r, i) {
+    r._solid = Math.random() < 0.5;
+    r._mirror = !!mirroredSet[i];
+    r._shift = !!shiftedSet[i];
+  });
+  function renderAll() { rules.forEach(build); }
+
+  // Clicking the heading or its divider toggles the <details> natively; the figure follows.
+  rules.forEach(function (rule) {
+    var d = rule.closest('details');
+    d.addEventListener('toggle', function () {
+      if (d.open && rule._bubble) {   // the bubble has done its job once its section is opened
+        rule._bubbleGone = true;
+        if (rule._bubble.parentNode) rule._bubble.parentNode.removeChild(rule._bubble);
+        rule._bubble = null;
+      }
+      if (rule._fig) setHung(rule._fig, d.open, true);
+    });
+  });
+
+  var lastW = 0;
+  function checkWidth() {
+    var w = Math.round(document.querySelector('.faq .wrap').getBoundingClientRect().width);
+    if (w !== lastW) { lastW = w; renderAll(); }
+  }
+  if (window.ResizeObserver) new ResizeObserver(checkWidth).observe(document.querySelector('.faq .wrap'));
+  else window.addEventListener('resize', checkWidth);
+
+  /* ==========================================================
+     LIGHT / DARK BUTTON
+     ========================================================== */
+  var root = document.documentElement, modeBtn = document.getElementById('mode');
+  function setMode(m) {
+    root.setAttribute('data-colour', m);
+    var other = m === 'dark' ? 'light' : 'dark';
+    modeBtn.textContent = other === 'light' ? 'Light' : 'Dark';
+    modeBtn.setAttribute('aria-label', 'Switch to ' + other + ' mode');
+  }
+  modeBtn.addEventListener('click', function () {
+    setMode(root.getAttribute('data-colour') === 'dark' ? 'light' : 'dark');
+  });
+  setMode('dark');
+  checkWidth();
+
+  function openFaqFromHash() {
+    var h = location.hash;
+    if (!h) return;
+    var el = document.querySelector(h);
+    if (el && el.tagName === 'DETAILS') {
+      if (!el.open) el.open = true;
+      setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
+    }
+  }
+  window.addEventListener('hashchange', openFaqFromHash);
+  openFaqFromHash();
+
+  /* ==========================================================
+     MAIN IMAGE: an animated GIF pauses to a still (click it anywhere, or the corner
+     button). A normal still image needs no button. The placeholder shimmers so you can try it.
+     ========================================================== */
+  var media = document.getElementById('media'), pauseBtn = document.getElementById('pause');
+  var img = media.querySelector('img'), ph = media.querySelector('.ph');
+  var gifSrc = img ? img.getAttribute('src') : '';
+  var still = img ? img.getAttribute('data-still') : null;
+  var canPause = !img || /\.gif($|[?#])/i.test(gifSrc);   // the placeholder and GIFs can pause; a plain still image can't
+  var playing = !reduce;   // people who ask for less motion get it paused to begin with
+  var ICON_PAUSE = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.6" height="12" rx="1.3" fill="currentColor"/><rect x="8.4" y="1" width="3.6" height="12" rx="1.3" fill="currentColor"/></svg>';
+  var ICON_PLAY = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 2 L11.5 7 L3.5 12 Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  function disablePause() { canPause = false; pauseBtn.hidden = true; media.classList.add('still'); }
+  function renderClip() {
+    if (ph) ph.style.animationPlayState = playing ? 'running' : 'paused';
+    if (img && canPause) {
+      var want = playing ? gifSrc : still;
+      if (want && img.getAttribute('src') !== want) img.setAttribute('src', want);   // going back to the GIF restarts it
+    }
+    pauseBtn.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    pauseBtn.setAttribute('aria-label', playing ? 'Pause animation' : 'Play animation');
+  }
+  // No still supplied: use the GIF's first frame, grabbed once it has loaded
+  function grabFirstFrame() {
+    try {
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img, 0, 0);
+      still = c.toDataURL('image/png');
+      renderClip();
+    } catch (e) { disablePause(); }   // couldn't grab one (e.g. opened as a local file), so show no pause button
+  }
+
+  if (!canPause) {
+    disablePause();
+  } else {
+    if (img && !still) {
+      if (img.complete && img.naturalWidth) grabFirstFrame(); else img.addEventListener('load', grabFirstFrame, { once: true });
+    }
+    media.addEventListener('click', function () { if (canPause && (!img || still)) { playing = !playing; renderClip(); } });   // the button's click bubbles up to here too
+    renderClip();
+  }
+})();
+</script>
+</body>
+</html>
