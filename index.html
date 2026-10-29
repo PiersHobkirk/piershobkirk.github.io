@@ -74,9 +74,23 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 /* extra room above the heading that carries the "click me!" bubble */
 .faq details.has-bubble .q { padding-top: 2.7rem; }
 
-.links { padding-block: 2rem 3rem; }
-.links ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
-.links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
+  .links { padding-block: 2rem 3rem; }
+  .links ul { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+  .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
+  .links .link-btn {
+    display: inline-block;
+    padding: .6rem 1.2rem;
+    text-decoration: none;
+    font: inherit;
+    font-weight: 700;
+    border-radius: 999px;
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    border: none;
+    cursor: pointer;
+  }
+  .links .link-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .links .more-text { max-width: 32rem; margin: 0 auto; text-align: center; }
 
 /* ============================================================
    DIVIDERS: a flat bar with catenary backup loops hanging below it
@@ -104,7 +118,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 <header class="hero">
   <div class="wrap">
     <h1>Hey Slacker!</h1>
-    <p class="lede">Hello! <b>My name is Piers, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
+    <p class="lede">Hello! <b>My name is <a href="https://www.instagram.com/piershobkirk/?utm_source=chatgpt.com">Piers</a>, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
   </div>
 </header>
 
@@ -143,7 +157,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       </div>
       <div>
         <h2>Umm... <i>What</i>-lining???</h2>
-        <p><b>Slacklining</b> is a sport where we try to balance on a rope. There is an infinite number of ways to do it; long or short, loose or tight, thick or thin, stretchy or static, high or low!</p>
+        <p><b>Slacklining</b> is a sport where we try to balance on a rope. The options are endless; long or short, loose or tight, thick or thin, stretchy or static, high or low!</p>
         <p>I have been slacklining for ~4 years. I love the flow and the super-sharp focus, and the way "impossible" things slowly become effortless. It's great! But fair warning, it can be addictive...</p>
       </div>
     </div>
@@ -156,12 +170,12 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       <details open>
         <summary><span class="q">Can I try?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Sure! Actually, it depends...</p>
-          <p>If I’m wearing airpods, I'm trying to focus, so no. Otherwise, please just wait for me to fall off before introducing yourself. I might still say no for safety reasons (small children, drunk people, etc).</p>
+          <p>If I’m wearing airpods, I'm trying to focus. Otherwise, just wait for me to fall off before introducing yourself. I might still say no for safety reasons (small children, drunk people, etc).</p>
           <p>I recommend getting a beginner slackline kit (they are quite cheap secondhand, and very easy to use). It is best to start with a low, short, tight setup. Put it in a park or backyard, and enjoy!</p></div>
       </details>
       <details class="has-bubble">
         <summary><span class="q">How do you do it?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>It's <s>magic</s> practice. Everything happens subconsciously, so I don't really know how I do it, either. Our brains are capable of incredible things.</p></div>
+        <div class="a"><p>It's <s>magic</s> practice. Everything happens subconsciously, so I don't really know how I do it, either. Our brains can do incredible things.</p></div>
       </details>
       <details>
         <summary><span class="q">Are you training for something?</span><span class="rule" aria-hidden="true"></span></summary>
@@ -169,11 +183,12 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       </details>
       <details>
         <summary><span class="q">What about the trees?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>The trees are fine! We use padding to prevent wear; and fully grown trees are way, <i>way</i> stronger than slackline forces.</p></div>
+        <div class="a"><p>The trees are fine! We use padding to prevent wear; and thick trees are way, <i>way</i> stronger than slacklines.</p></div>
       </details>
       <details id="faq-join">
         <summary><span class="q">Can I join your group?</span><span class="rule" aria-hidden="true"></span></summary>
         <div class="a"><p>Of course! Everyone is welcome. There's a small group of us on the Northern Beaches. There's also a bigger group for all of Sydney.</p>
+        <p><i>"The best slackliner is the one having the most fun..."</i></p>
         <p>Check out these links:</p></div>
       </details>
     </div>
@@ -181,12 +196,13 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   <section class="links">
     <div class="wrap">
-      <h2>Find out more</h2>
       <ul>
-        <li><a href="#">Link one</a></li>
-        <li><a href="#">Link two</a></li>
-        <li><a href="#">Link three</a></li>
+        <li><button type="button" class="link-btn" id="manly-more-btn" aria-expanded="false">Slacklining Manly + Beyond</button></li>
+        <li><a href="https://www.facebook.com/groups/SlacklineSydney/">Slackline Sydney</a></li>
       </ul>
+      <div class="more-text" id="manly-more" aria-live="polite" hidden>
+        <p>(We're still a small group, so we just use a facebook group chat. Send <a href="https://www.facebook.com/piers.hobkirk/">me</a> a message request and I'll add you.)</p>
+      </div>
     </div>
   </section>
 </main>
@@ -678,6 +694,22 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   }
   window.addEventListener('hashchange', openFaqFromHash);
   openFaqFromHash();
+
+  // Toggle extra text for "Slacklining Manly + Beyond" link/button
+  var manlyBtn = document.getElementById('manly-more-btn');
+  var manlyMore = document.getElementById('manly-more');
+  if (manlyBtn && manlyMore) {
+    manlyBtn.addEventListener('click', function () {
+      var isHidden = manlyMore.hasAttribute('hidden');
+      if (isHidden) {
+        manlyMore.removeAttribute('hidden');
+        manlyBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        manlyMore.setAttribute('hidden', '');
+        manlyBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   /* ==========================================================
      MAIN IMAGE HANDLER
