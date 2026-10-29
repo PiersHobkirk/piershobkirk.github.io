@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page title</title>
+<title>Hey Slacker!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:wght@300;400;700&display=swap" rel="stylesheet">
@@ -94,8 +94,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
 <header class="hero">
   <div class="wrap">
-    <h1>Page title</h1>
-    <p class="lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+    <h1>Hey Slacker!</h1>
+    <p class="lede">Hello! <b>My name is Piers, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
   </div>
 </header>
 
@@ -117,9 +117,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
         <button type="button" class="pause" id="pause" aria-label="Pause animation"></button>
       </div>
       <div>
-        <h2>Section heading</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent libero. Sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet.</p>
-        <p>Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa vestibulum lacinia arcu eget nulla.</p>
+        <h2>Umm... <i>What</i>-lining???</h2>
+        <p><b>Slacklining</b> is a sport where we try to balance on a rope. There is an infinite number of ways to do it; long or short, loose or tight, thick or thin, stretchy or static, high or low!</p>
+        <p>I have been slacklining for ~4 years. I love the flow and the super-sharp focus, and the way "impossible" things slowly become effortless. It's great! But fair warning, it can be addictive...</p>
       </div>
     </div>
   </section>
@@ -127,26 +127,29 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   <!-- Each heading has its own divider (.rule), drawn by the script. Clicking the heading or the divider opens the section. -->
   <section class="faq">
     <div class="wrap">
-      <h2>Frequently asked questions</h2>
+      <h2>Frequently asked questions:</h2>
       <details open>
-        <summary><span class="q">Lorem ipsum dolor sit amet?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p></div>
+        <summary><span class="q">Can I try?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Sure! Actually, it depends...</p>
+          <p>If I’m wearing airpods, I'm trying to focus, so no. Otherwise, please just wait for me to fall off before introducing yourself. I might still say no for safety reasons (small children, drunk people, etc).</p>
+          <p>I recommend getting a beginner slackline kit (they are quite cheap secondhand, and very easy to use). It is best to start with a low, short, tight setup. Put it in a park or backyard, and enjoy!</p></div>
       </details>
       <details class="has-bubble">
-        <summary><span class="q">Ut enim ad minim veniam?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p></div>
+        <summary><span class="q">How do you do it?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>It's <s>magic</s> practice. Everything happens subconsciously, so I don't really know how I do it, either. Our brains are capable of incredible things.</p></div>
       </details>
       <details>
-        <summary><span class="q">Excepteur sint occaecat cupidatat?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem.</p></div>
+        <summary><span class="q">Are you training for something?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Not really. I don't plan to join the circus or anything. I just do this for fun.</p></div>
       </details>
       <details>
-        <summary><span class="q">Nemo enim ipsam voluptatem?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>Quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione.</p></div>
+        <summary><span class="q">What about the trees?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>The trees are fine! We use padding to prevent wear; and fully grown trees are way, <i>way</i> stronger than slackline forces.</p></div>
       </details>
       <details>
-        <summary><span class="q">Neque porro quisquam est?</span><span class="rule" aria-hidden="true"></span></summary>
-        <div class="a"><p>Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora.</p></div>
+        <summary><span class="q">Can I join your group?</span><span class="rule" aria-hidden="true"></span></summary>
+        <div class="a"><p>Of course! Everyone is welcome. There's a small group of us on the Northern Beaches. There's also a bigger group for all of Sydney.</p>
+        <p>Check out these links:</p></div>
       </details>
     </div>
   </section>
@@ -524,9 +527,23 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   var rules = Array.prototype.slice.call(document.querySelectorAll('.faq .rule'));
   // each figure randomly gets a solid or an outline head (chosen once per page load)
-  // the 3rd divider, and the 5th and every one after it, are mirrored (figure on the left)
-  function isMirrored(n) { return n === 3 || n >= 5; }   // n counts dividers from 1
-  rules.forEach(function (r, i) { r._solid = Math.random() < 0.5; r._mirror = isMirrored(i + 1); });
+  var mirrorChoices = [];
+  for (var mi = 0; mi < rules.length; mi++) {
+    if (mi === 1) continue; // divider 2 always unmirrored
+    mirrorChoices.push(mi);
+  }
+  for (var mk = mirrorChoices.length - 1; mk > 0; mk--) {
+    var mj = Math.floor(Math.random() * (mk + 1));
+    var mt = mirrorChoices[mk]; mirrorChoices[mk] = mirrorChoices[mj]; mirrorChoices[mj] = mt;
+  }
+  var mirroredSet = {};
+  for (var mp = 0; mp < 2 && mp < mirrorChoices.length; mp++) {
+    mirroredSet[mirrorChoices[mp]] = true;
+  }
+  rules.forEach(function (r, i) {
+    r._solid = Math.random() < 0.5;
+    r._mirror = !!mirroredSet[i];
+  });
   function renderAll() { rules.forEach(build); }
 
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
