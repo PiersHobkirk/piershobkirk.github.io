@@ -525,8 +525,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       'C', p(x + w * 0.75, y + h + j(0.6)), p(base + 25, y + h + j(0.5)), p(base + 7, y + h),
 
       // Curved tail.
-      'Q', p(base + 3, y + h + 5), p(tipX + 1, tipY),
-      'Q', p(tipX - 5, y + h + 7), p(base - 9, y + h),
+      'Q', p(base - 3, y + h + 5), p(tipX - 9, tipY + 3),
+      'Q', p(tipX - 17, y + h + 15), p(base-15, y + h + 1),
 
       // Bottom-left corner and left edge.
       'C', p(x + w * 0.25, y + h + j(0.5)), p(x, y + h - r), p(x + j(0.5), y + h - r),
@@ -540,7 +540,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 
   function drawBubble(svg, W, barY, figX, fig) {
     var P = STANDS[fig.v], r = HEAD_R * SCALE * (fig.solid ? 1.12 : 1);
-    var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
+    var tipX = figX + P.hd[0] - 2, tipY = barY + P.hd[1] - r - 4;   // the tail points at the top of the head
     var bottom = tipY - 8, top = bottom - BUBBLE_H, left = W - BUBBLE_W - 2;
     var g = el('g', { 'pointer-events': 'none' }, svg);
     el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(332940), 0, 0) }, g);
