@@ -543,8 +543,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
     var bottom = tipY - 8, top = bottom - BUBBLE_H, left = W - BUBBLE_W - 2;
     var g = el('g', { 'pointer-events': 'none' }, svg);
-    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(7), 0, 0) }, g);
-    el('path', {class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(36), 1.8, 1.4)}, g);
+    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(332940), 0, 0) }, g);
+    el('path', {class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(332974), 1.8, 1.4)}, g);
     var t = el('text', { class: 'bubtext', x: left + BUBBLE_W / 2, y: top + BUBBLE_H / 2 + 5,
                          transform: 'rotate(-2 ' + (left + BUBBLE_W / 2) + ' ' + (top + BUBBLE_H / 2) + ')' }, g);
     t.textContent = 'click me!';
