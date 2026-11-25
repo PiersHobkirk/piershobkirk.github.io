@@ -92,7 +92,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     cursor: pointer;
   }
   .links .link-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-  .links .more-text { max-width: 32rem; margin: 0 auto; text-align: center; margin-bottom: 50px;}
+  .links .more-text { margin: 0 auto 50px; text-align: center;}
   
 .social-icon {
     width: 32px;
@@ -210,11 +210,11 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
         <li><a href="https://www.facebook.com/groups/SlacklineSydney/">Slackline Sydney</a></li>
         <li><a href="https://www.instagram.com/piershobkirk/">My <img src="/images/IG_logo.png" alt="Instagram" class="social-icon"></a></li>
       </ul>
+      <div class="more-text" id="manly-more" aria-live="polite" hidden>
+        <p>(We're still a small group, so we just use a facebook group chat. Send <a href="https://www.facebook.com/piers.hobkirk/">me</a> a message request and I'll add you.)</p>
+      </div>
     </div>
   </section>
-  <div class="more-text" id="manly-more" aria-live="polite" hidden>
-    <p>(We're still a small group, so we just use a facebook group chat. Send <a href="https://www.facebook.com/piers.hobkirk/">me</a> a message request and I'll add you.)</p>
-  </div>
 </main>
 
 <button type="button" class="mode" id="mode" aria-label="Switch to light mode">Light</button>
@@ -715,9 +715,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
         manlyMore.removeAttribute('hidden');
         manlyBtn.setAttribute('aria-expanded', 'true');
         setTimeout(function () {
-          manlyMore.scrollIntoView({
-            behavior: 'smooth',
-            block: 'end'
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
           });
         }, 50);
       } else {
