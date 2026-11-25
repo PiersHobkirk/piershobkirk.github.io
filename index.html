@@ -28,6 +28,7 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font-family: "Averia Serif Libre", Georgia, serif; font-size: 1.1rem; line-height: 1.7; text-align: center;
+  padding-bottom: 20px;
 }
 .wrap { width: min(100% - 2.5rem, 40rem); margin-inline: auto; }
 h1, h2 { font-weight: 700; margin: 0; line-height: 1.15; }
@@ -74,7 +75,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 /* extra room above the heading that carries the "click me!" bubble */
 .faq details.has-bubble .q { padding-top: 2.7rem; }
 
-  .links { padding-block: 2rem 3rem; }
+  .links { padding-block: 3rem; }
   .links ul { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
   .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
   .links .link-btn {
@@ -118,7 +119,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 <header class="hero">
   <div class="wrap">
     <h1>Hey Slacker!</h1>
-    <p class="lede">Hello! <b>My name is <a href="https://www.instagram.com/piershobkirk/?utm_source=chatgpt.com">Piers</a>, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
+    <p class="lede">Hello! <b>My name is <a href="https://www.instagram.com/piershobkirk/">Piers</a>, and I love slacklining.</b> I made this page for people who want to learn more, or try it themselves (and join our local <a href="#faq-join">community</a>!)</p>
   </div>
 </header>
 
@@ -199,12 +200,13 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       <ul>
         <li><button type="button" class="link-btn" id="manly-more-btn" aria-expanded="false">Slacklining Manly + Beyond</button></li>
         <li><a href="https://www.facebook.com/groups/SlacklineSydney/">Slackline Sydney</a></li>
+        <li><a href="https://www.instagram.com/piershobkirk/">My Instagram</a></li>
+        <li><a href="https://www.instagram.com/piershobkirk/">My <img src="/images/IC_icon.png" alt="Instagram" class="social-icon"></a></li>
       </ul>
     </div>
   </section>
   <div class="more-text" id="manly-more" aria-live="polite" hidden>
     <p>(We're still a small group, so we just use a facebook group chat. Send <a href="https://www.facebook.com/piers.hobkirk/">me</a> a message request and I'll add you.)</p>
-    <p></p>
   </div>
 </main>
 
