@@ -110,7 +110,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 .rule svg { display: block; overflow: visible; }
 .rule .bar, .rule .loop { fill: none; stroke: var(--rule); stroke-linecap: round; stroke-linejoin: round; }
 .rule .bub  { fill: var(--bg); stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.rule .bub2 { fill: none; stroke: var(--accent); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.rule .bub2 { fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
 .rule .bubtext { fill: var(--ink); font-weight: 700; font-size: 14.5px; text-anchor: middle; }
 .rule .fl { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .rule .fh { fill: var(--ink); stroke: none; }
@@ -501,11 +501,11 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     };
 
     // Keep the tail attached within the bottom edge.
-    var base = Math.max(x + 20, Math.min(x + w - 20, tipX - 7));
+    var base = Math.max(x + 20, Math.min(x + w - 20, tipX - 15));
 
     // Small independent imperfections in the outline.
-    var a = j(0.8), b = j(0.8), c = j(0.8), d = j(0.8);
-    var e = j(0.7), f = j(0.7);
+    var a = j(2.0), b = j(1.8), c = j(2.0), d = j(1.8);
+    var e = j(1.5), f = j(1.5); 
 
     function p(px, py) {
       return (px + dx).toFixed(2) + ' ' + (py + dy).toFixed(2);
@@ -543,8 +543,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
     var bottom = tipY - 8, top = bottom - BUBBLE_H, left = W - BUBBLE_W - 2;
     var g = el('g', { 'pointer-events': 'none' }, svg);
-    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(11), 0, 0) }, g);
-    el('path', { class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(29), 0.9, 0.7) }, g);
+    el('path', { class: 'bub', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(7), 0, 0) }, g);
+    el('path', {class: 'bub2', d: bubblePath(left, top, BUBBLE_W, BUBBLE_H, tipX, tipY, seeded(36), 1.8, 1.4)}, g);
     var t = el('text', { class: 'bubtext', x: left + BUBBLE_W / 2, y: top + BUBBLE_H / 2 + 5,
                          transform: 'rotate(-2 ' + (left + BUBBLE_W / 2) + ' ' + (top + BUBBLE_H / 2) + ')' }, g);
     t.textContent = 'click me!';
