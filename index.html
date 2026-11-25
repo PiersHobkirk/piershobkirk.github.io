@@ -95,8 +95,8 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   .links .more-text { margin: 0 auto 50px; text-align: center;}
   
 .social-icon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
     vertical-align: middle;
 }
@@ -208,7 +208,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
       <ul>
         <li><button type="button" class="link-btn" id="manly-more-btn" aria-expanded="false">Slacklining Manly + Beyond</button></li>
         <li><a href="https://www.facebook.com/groups/SlacklineSydney/">Slackline Sydney</a></li>
-        <li><a href="https://www.instagram.com/piershobkirk/">My <img src="/images/IG_logo.png" alt="Instagram" class="social-icon"></a></li>
+        <li><a href="https://www.instagram.com/piershobkirk/">My<img src="/images/IG_logo.png" alt="Instagram" class="social-icon"></a></li>
       </ul>
     </div>
   </section>
@@ -493,34 +493,51 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   var BUBBLE_ON = 1, BUBBLE_W = 100, BUBBLE_H = 30;
   function seeded(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
   // A wobbly rounded box with a tail; every point is nudged a little so it looks drawn, not generated
+  
   function bubblePath(x, y, w, h, tipX, tipY, rnd, dx, dy) {
-    var r = 11, pts = [];
-    function arc(cx, cy, a0, a1) {
-      for (var i = 0; i <= 2; i++) { var a = (a0 + (a1 - a0) * i / 2) * Math.PI / 180; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    var r = 10;
+    var j = function (amount) {
+      return (rnd() * 2 - 1) * amount;
+    };
+
+    // Keep the tail attached within the bottom edge.
+    var base = Math.max(x + 20, Math.min(x + w - 20, tipX - 7));
+
+    // Small independent imperfections in the outline.
+    var a = j(0.8), b = j(0.8), c = j(0.8), d = j(0.8);
+    var e = j(0.7), f = j(0.7);
+
+    function p(px, py) {
+      return (px + dx).toFixed(2) + ' ' + (py + dy).toFixed(2);
     }
-    pts.push([x + r + 2, y], [x + w * 0.5, y]);
-    arc(x + w - r, y + r, -90, 0);
-    pts.push([x + w, y + h / 2]);
-    arc(x + w - r, y + h - r, 0, 90);
-    pts.push([tipX - 2, y + h]);
-    var tail = pts.length;
-    pts.push([tipX, tipY], [tipX, tipY], [tipX - 14, y + h]);
-    arc(x + r, y + h - r, 90, 180);
-    pts.push([x, y + h / 2]);
-    arc(x + r, y + r, 180, 270);
-    pts.push([x + r + 10, y - 0.8]);             // overshoot, like a pen that doesn't quite meet where it started
-    pts = pts.map(function (p, i) {
-      var tip = i === tail || i === tail + 1;
-      return [p[0] + dx + (tip ? 0 : (rnd() * 2 - 1) * 1.0), p[1] + dy + (tip ? 0 : (rnd() * 2 - 1) * 1.0)];
-    });
-    var d = 'M' + pt(pts[0]);
-    for (var i = 0; i < pts.length - 1; i++) {   // smooth curve through the points
-      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
-      d += ' C' + pt([p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]) +
-           ' ' + pt([p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]) + ' ' + pt(p2);
-    }
-    return d;
+
+    return [
+      'M', p(x + r, y + a),
+
+      // Top edge and top-right corner.
+      'C', p(x + w * 0.35, y + b), p(x + w * 0.7, y + b), p(x + w - r, y + c),
+      'Q', p(x + w + j(0.5), y + r), p(x + w + d, y + h * 0.35),
+
+      // Right edge and bottom-right corner.
+      'C', p(x + w + e, y + h * 0.65), p(x + w - r + f, y + h), p(x + w - r, y + h),
+
+      // Bottom edge, approaching the tail.
+      'C', p(x + w * 0.75, y + h + j(0.6)), p(base + 25, y + h + j(0.5)), p(base + 7, y + h),
+
+      // Curved tail.
+      'Q', p(base + 3, y + h + 5), p(tipX + 1, tipY),
+      'Q', p(tipX - 5, y + h + 7), p(base - 9, y + h),
+
+      // Bottom-left corner and left edge.
+      'C', p(x + w * 0.25, y + h + j(0.5)), p(x, y + h - r), p(x + j(0.5), y + h - r),
+      'C', p(x - j(0.5), y + h * 0.65), p(x + j(0.5), y + h * 0.35), p(x + j(0.5), y + r),
+
+      // Top-left corner and slightly imperfect closure.
+      'Q', p(x + j(0.5), y), p(x + r + 2, y + a),
+      'Z'
+    ].join(' ');
   }
+
   function drawBubble(svg, W, barY, figX, fig) {
     var P = STANDS[fig.v], r = HEAD_R * SCALE * (fig.solid ? 1.12 : 1);
     var tipX = figX + P.hd[0], tipY = barY + P.hd[1] - r - 4.5;   // the tail points at the top of the head
