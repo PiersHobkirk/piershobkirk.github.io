@@ -76,9 +76,9 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 /* extra room above the heading that carries the "click me!" bubble */
 .faq details.has-bubble .q { padding-top: 2.7rem; }
 
-  .links { padding-block: 3rem; }
+  .links { padding-block: 0rem 0rem; }
   .links ul { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
-  .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); }
+  .links a { display: inline-block; padding: .6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 999px; background: var(--btn-bg); color: var(--btn-ink); white-space: nowrap;}
   .links .link-btn {
     display: inline-block;
     padding: .6rem 1.2rem;
@@ -92,13 +92,13 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     cursor: pointer;
   }
   .links .link-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-  .links .more-text { max-width: 32rem; margin: 0 auto; text-align: center; }
+  .links .more-text { max-width: 32rem; margin: 0 auto; text-align: center; margin-bottom: 50px;}
   
 .social-icon {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
+    vertical-align: middle;
 }
 
 /* ============================================================
