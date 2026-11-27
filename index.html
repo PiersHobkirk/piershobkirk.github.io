@@ -12,6 +12,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
 
+<script data-goatcounter="https://phobkirk.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
 <style>
 /* ============================================================
    COLOURS: two schemes, switched by data-colour on <html>
@@ -229,6 +231,46 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
 <script>
 (function () {
   'use strict';
+
+  var gcPending = [], gcAttempts = 0, gcTimer = 0;
+  function gcSend(vars) {
+    if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+      window.goatcounter.count(vars);
+    } else {
+      gcPending.push(vars);
+      if (!gcTimer) {
+        gcTimer = setInterval(function () {
+          if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+            clearInterval(gcTimer);
+            gcPending.forEach(function (v) { window.goatcounter.count(v); });
+            gcPending = [];
+          } else if (++gcAttempts >= 100) {
+            clearInterval(gcTimer);
+            gcPending = [];
+          }
+        }, 100);
+      }
+    }
+  }
+  function gcEvent(name, title) {
+    gcSend({ path: name, title: title || name, event: true, no_session: true });
+  }
+  function gcExternalName(href) {
+    var u;
+    try { u = new URL(href, location.href); } catch (e) { return null; }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    if (u.hostname === location.hostname) return null;
+    return ('ext-' + u.hostname.replace(/^www\./, '') + u.pathname.replace(/\/+$/, '')).slice(0, 200);
+  }
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button) return;
+    var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!link || link.hasAttribute('data-goatcounter-click')) return;
+    var name = gcExternalName(link.href);
+    if (!name) return;
+    var title = (link.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 200) || link.href;
+    gcEvent(name, title);
+  });
 
   /* ==========================================================
      SETTINGS
@@ -683,6 +725,15 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
   // Clicking the heading or its divider toggles the <details> natively; the figure follows.
   rules.forEach(function (rule) {
     var d = rule.closest('details');
+    var sum = d.querySelector('summary');
+    if (sum) {
+      sum.addEventListener('click', function () {
+        if (d.open) return;
+        var q = d.querySelector('.q');
+        var question = q ? q.textContent.replace(/\s+/g, ' ').trim() : 'unknown';
+        gcEvent('expand-faq-' + question, question);
+      });
+    }
     d.addEventListener('toggle', function () {
       if (d.open && rule._bubble) {   // the bubble has done its job once its section is opened
         rule._bubbleGone = true;
@@ -736,6 +787,7 @@ h2 { font-size: clamp(1.6rem, 5vw, 2.1rem); margin-bottom: .8rem; }
     manlyBtn.addEventListener('click', function () {
       var isHidden = manlyMore.hasAttribute('hidden');
       if (isHidden) {
+        gcEvent('expand-manly', manlyBtn.textContent.replace(/\s+/g, ' ').trim());
         manlyMore.removeAttribute('hidden');
         manlyBtn.setAttribute('aria-expanded', 'true');
         setTimeout(function () {
